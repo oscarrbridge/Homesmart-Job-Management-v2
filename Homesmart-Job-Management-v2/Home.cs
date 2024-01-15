@@ -1,14 +1,7 @@
 ﻿using Connections;
 using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Homesmart_Job_Management_v2
@@ -144,7 +137,7 @@ namespace Homesmart_Job_Management_v2
         {
             DialogResult dialogResult = MessageBox.Show($"Is the information correct: " +
                                                         $"\nCustomer Name: {boxCustomerName.Text}" +
-                                                        $"\nCustomer Address: {boxCustomerAddress.Text}", 
+                                                        $"\nCustomer Address: {boxCustomerAddress.Text}",
                                                         "Confirmation", MessageBoxButtons.OKCancel);
             if (dialogResult == DialogResult.OK)
             {
@@ -170,14 +163,14 @@ namespace Homesmart_Job_Management_v2
 
         private void dataJobs_ClickEdit(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == -1);
-        
+            if (e.ColumnIndex == -1) ;
+
             // If the 'Edit' button was clicked.
             else if (dataJobs.Columns[e.ColumnIndex].Name == "btnEdit" && e.RowIndex >= 0)
             {
                 // Get the job ID from the selected row.
                 int ID = Convert.ToInt32(dataJobs.Rows[e.RowIndex].Cells["ID"].Value);
-        
+
                 Edit edit = new Edit(ID);
                 edit.Show();
             }
