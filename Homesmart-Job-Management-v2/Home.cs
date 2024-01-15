@@ -28,9 +28,10 @@ namespace Homesmart_Job_Management_v2
 
         private void setColumnWidth()
         {
-            dataJobs.Columns[1].Width = 170;
-            dataJobs.Columns[2].Width = 220;
-            dataJobs.Columns[3].Width = 220;
+            dataJobs.Columns[1].Width = 40;
+            dataJobs.Columns[2].Width = 160;
+            dataJobs.Columns[3].Width = 205;
+            dataJobs.Columns[4].Width = 205;
         }
 
         private void search()
@@ -42,7 +43,8 @@ namespace Homesmart_Job_Management_v2
 
                 if (boxCustomerName.Text.Length > 0 && boxCustomerAddress.Text.Length > 0)
                 {
-                    query = "SELECT CustomerInfo.CustomerName AS 'Customer Name', " +
+                    query = "SELECT CustomerInfo.CustomerID AS 'ID', " +
+                            "CustomerInfo.CustomerName AS 'Customer Name', " +
                             "CustomerInfo.CustomerAddress AS 'Customer Address', " +
                             "CustomerInfo.CustomerEmail AS 'Customer Email' " +
                             "FROM CustomerInfo " +
@@ -51,7 +53,8 @@ namespace Homesmart_Job_Management_v2
                 }
                 else if (boxCustomerName.Text.Length > 0)
                 {
-                    query = "SELECT CustomerInfo.CustomerName AS 'Customer Name', " +
+                    query = "SELECT CustomerInfo.CustomerID AS 'ID', " +
+                            "CustomerInfo.CustomerName AS 'Customer Name', " +
                             "CustomerInfo.CustomerAddress AS 'Customer Address', " +
                             "CustomerInfo.CustomerEmail AS 'Customer Email' " +
                             "FROM CustomerInfo " +
@@ -59,18 +62,20 @@ namespace Homesmart_Job_Management_v2
                 }
                 else if (boxCustomerAddress.Text.Length > 0)
                 {
-                    query = "SELECT CustomerInfo.CustomerName AS 'Customer Name', " +
-                        "CustomerInfo.CustomerAddress AS 'Customer Address', " +
-                        "CustomerInfo.CustomerEmail AS 'Customer Email' " +
-                        "FROM CustomerInfo " +
-                        "WHERE CustomerInfo.CustomerAddress LIKE @CustomerAddress;";
+                    query = "SELECT CustomerInfo.CustomerID AS 'ID', " +
+                            "CustomerInfo.CustomerName AS 'Customer Name', " +
+                            "CustomerInfo.CustomerAddress AS 'Customer Address', " +
+                            "CustomerInfo.CustomerEmail AS 'Customer Email' " +
+                            "FROM CustomerInfo " +
+                            "WHERE CustomerInfo.CustomerAddress LIKE @CustomerAddress;";
                 }
                 else if (boxCustomerName.Text.Length == 0 && boxCustomerAddress.Text.Length == 0)
                 {
-                    query = "SELECT CustomerInfo.CustomerName AS 'Customer Name', " +
-                        "CustomerInfo.CustomerAddress AS 'Customer Address', " +
-                        "CustomerInfo.CustomerEmail AS 'Customer Email' " +
-                        "FROM CustomerInfo;";
+                    query = "SELECT CustomerInfo.CustomerID AS 'ID', " +
+                            "CustomerInfo.CustomerName AS 'Customer Name', " +
+                            "CustomerInfo.CustomerAddress AS 'Customer Address', " +
+                            "CustomerInfo.CustomerEmail AS 'Customer Email' " +
+                            "FROM CustomerInfo;";
                 }
 
                 MySqlCommand cmd = new MySqlCommand(query, dbConnection.GetConnection());
@@ -160,6 +165,21 @@ namespace Homesmart_Job_Management_v2
                     dbConnection.CloseConnection();
                 }
                 search();
+            }
+        }
+
+        private void dataJobs_ClickEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == -1);
+        
+            // If the 'Edit' button was clicked.
+            else if (dataJobs.Columns[e.ColumnIndex].Name == "btnEdit" && e.RowIndex >= 0)
+            {
+                // Get the job ID from the selected row.
+                int ID = Convert.ToInt32(dataJobs.Rows[e.RowIndex].Cells["ID"].Value);
+        
+                Edit edit = new Edit(ID);
+                edit.Show();
             }
         }
     }

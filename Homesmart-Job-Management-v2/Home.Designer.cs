@@ -253,6 +253,7 @@
             this.dataJobs.RowHeadersVisible = false;
             this.dataJobs.Size = new System.Drawing.Size(671, 509);
             this.dataJobs.TabIndex = 8;
+            this.dataJobs.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataJobs_ClickEdit);
             // 
             // btnEdit
             // 
