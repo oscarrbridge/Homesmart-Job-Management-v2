@@ -99,7 +99,7 @@ namespace Homesmart_Job_Management_v2
         {
             CreateTab();
         }
-        
+
         //Create job detail elements
         private void AddJobDetailTitles()
         {
@@ -167,7 +167,7 @@ namespace Homesmart_Job_Management_v2
                 (typeof(Label), "lblInternalCharges",   "Internal Charges",         16, new Point(10, 156), new Size(175, 30)),
                 (typeof(Label), "lblInternalSupplier",  "Supplier / Contractor",    10, new Point(10, 193), new Size(140, 20)),
                 (typeof(Label), "lblInternalCompany",   "Internal Company",         10, new Point(168, 193), new Size(140, 20)),
-                (typeof(Label), "lblType",              "Type of Charge",           10, new Point(326, 193), new Size(140, 20)),
+                (typeof(Label), "lblType",              "Type",           10, new Point(326, 193), new Size(140, 20)),
                 (typeof(Label), "lblValue",             "Value",                    10, new Point(633, 193), new Size(140, 20))
             };
 
@@ -222,7 +222,7 @@ namespace Homesmart_Job_Management_v2
 
             var controlsInfo = new List<(Type, string, string, int, Point, Size)>
             {
-                (typeof(Label), "lblInvoice",        "Quotes",                16, new Point(10, 371), new Size(175, 30)),
+                (typeof(Label), "lblInvoice",        "Invoices",              16, new Point(10, 371), new Size(175, 30)),
                 (typeof(Label), "lblInvoiceSupplier", "Supplier / Contractor",10, new Point(10, 413), new Size(140, 20)),
                 (typeof(Label), "lblInvoiceDate",     "Date",                 10, new Point(168, 413), new Size(140, 20)),
                 (typeof(Label), "lblInvoiceReference","Reference",            10, new Point(326, 413), new Size(140, 20)),
