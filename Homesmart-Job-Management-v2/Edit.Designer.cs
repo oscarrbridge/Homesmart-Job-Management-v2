@@ -39,9 +39,7 @@
             this.lblCustomerAddress = new System.Windows.Forms.Label();
             this.lblCustomerEmail = new System.Windows.Forms.Label();
             this.btnAddTab = new System.Windows.Forms.Button();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
             ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).BeginInit();
-            this.tabControl1.SuspendLayout();
             this.SuspendLayout();
             // 
             // imgLogo
@@ -56,7 +54,6 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Location = new System.Drawing.Point(12, 165);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -134,16 +131,6 @@
             this.btnAddTab.UseVisualStyleBackColor = true;
             this.btnAddTab.Click += new System.EventHandler(this.BtnAddTab_Click);
             // 
-            // tabPage1
-            // 
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(752, 608);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "tabPage1";
-            this.tabPage1.UseVisualStyleBackColor = true;
-            // 
             // Edit
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -164,7 +151,6 @@
             this.Text = "Edit";
             this.Load += new System.EventHandler(this.Edit_Load);
             ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).EndInit();
-            this.tabControl1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -182,6 +168,5 @@
         private System.Windows.Forms.Label lblCustomerAddress;
         private System.Windows.Forms.Label lblCustomerEmail;
         private System.Windows.Forms.Button btnAddTab;
-        private System.Windows.Forms.TabPage tabPage1;
     }
 }
