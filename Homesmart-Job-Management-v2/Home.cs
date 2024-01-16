@@ -13,13 +13,14 @@ namespace Homesmart_Job_Management_v2
             InitializeComponent();
         }
 
-        private void frmHome_Load(object sender, EventArgs e)
+        private void FrmHome_Load(object sender, EventArgs e)
         {
-            search();
-            setColumnWidth();
+            Search();
+            SetColumnWidth();
         }
 
-        private void setColumnWidth()
+        //Set widths of columns
+        private void SetColumnWidth()
         {
             dataJobs.Columns[1].Width = 40;
             dataJobs.Columns[2].Width = 160;
@@ -27,7 +28,8 @@ namespace Homesmart_Job_Management_v2
             dataJobs.Columns[4].Width = 205;
         }
 
-        private void search()
+        //Search database for specified name / address
+        private void Search()
         {
             DatabaseConnection dbConnection = new DatabaseConnection();
             if (dbConnection.OpenConnection() == true)
@@ -88,7 +90,7 @@ namespace Homesmart_Job_Management_v2
                 DialogResult result = MessageBox.Show("Server not found. Contact Admin", "Error", MessageBoxButtons.RetryCancel);
                 if (result == DialogResult.Retry)
                 {
-                    search();
+                    Search();
                 }
                 else
                 {
@@ -99,7 +101,8 @@ namespace Homesmart_Job_Management_v2
             dbConnection.CloseConnection();
         }
 
-        private void checkSearchConditions()
+        //Check for text in name / address field
+        private void CheckSearchConditions()
         {
             if (boxCustomerName.Text.Length > 0 && boxCustomerAddress.Text.Length > 0)
             {
@@ -111,29 +114,34 @@ namespace Homesmart_Job_Management_v2
             }
         }
 
-        private void btnSearch_Click(object sender, EventArgs e)
+        //On search button press
+        private void BtnSearch_Click(object sender, EventArgs e)
         {
-            search();
+            Search();
         }
 
-        private void boxCustomerName_TextChanged(object sender, EventArgs e)
+        //On edit customer name text changed
+        private void BoxCustomerName_TextChanged(object sender, EventArgs e)
         {
-            checkSearchConditions();
+            CheckSearchConditions();
         }
 
-        private void boxCustomerAddress_TextChanged(object sender, EventArgs e)
+        //On edit customer address text changed
+        private void BoxCustomerAddress_TextChanged(object sender, EventArgs e)
         {
-            checkSearchConditions();
+            CheckSearchConditions();
         }
 
-        private void btnResetSearch_Click(object sender, EventArgs e)
+        //On reset button pressed
+        private void BtnResetSearch_Click(object sender, EventArgs e)
         {
             boxCustomerName.Text = "";
             boxCustomerAddress.Text = "";
-            search();
+            Search();
         }
 
-        private void btnSubmitNew_Click(object sender, EventArgs e)
+        //On search button pressed
+        private void BtnSubmitNew_Click(object sender, EventArgs e)
         {
             DialogResult dialogResult = MessageBox.Show($"Is the information correct: " +
                                                         $"\nCustomer Name: {boxCustomerName.Text}" +
@@ -157,11 +165,12 @@ namespace Homesmart_Job_Management_v2
 
                     dbConnection.CloseConnection();
                 }
-                search();
+                Search();
             }
         }
 
-        private void dataJobs_ClickEdit(object sender, DataGridViewCellEventArgs e)
+        //On edit button pressed
+        private void DataJobs_ClickEdit(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == -1) ;
 

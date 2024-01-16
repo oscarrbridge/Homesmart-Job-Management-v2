@@ -156,7 +156,7 @@
             this.btnResetSearch.TabIndex = 20;
             this.btnResetSearch.Text = "↻";
             this.btnResetSearch.UseVisualStyleBackColor = true;
-            this.btnResetSearch.Click += new System.EventHandler(this.btnResetSearch_Click);
+            this.btnResetSearch.Click += new System.EventHandler(this.BtnResetSearch_Click);
             // 
             // btnSubmitNew
             // 
@@ -167,7 +167,7 @@
             this.btnSubmitNew.TabIndex = 19;
             this.btnSubmitNew.Text = "Create New";
             this.btnSubmitNew.UseVisualStyleBackColor = true;
-            this.btnSubmitNew.Click += new System.EventHandler(this.btnSubmitNew_Click);
+            this.btnSubmitNew.Click += new System.EventHandler(this.BtnSubmitNew_Click);
             // 
             // btnSearch
             // 
@@ -177,7 +177,7 @@
             this.btnSearch.TabIndex = 18;
             this.btnSearch.Text = "Search";
             this.btnSearch.UseVisualStyleBackColor = true;
-            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
+            this.btnSearch.Click += new System.EventHandler(this.BtnSearch_Click);
             // 
             // txtCustomerAddress
             // 
@@ -194,7 +194,7 @@
             this.boxCustomerAddress.Name = "boxCustomerAddress";
             this.boxCustomerAddress.Size = new System.Drawing.Size(171, 20);
             this.boxCustomerAddress.TabIndex = 17;
-            this.boxCustomerAddress.TextChanged += new System.EventHandler(this.boxCustomerAddress_TextChanged);
+            this.boxCustomerAddress.TextChanged += new System.EventHandler(this.BoxCustomerAddress_TextChanged);
             // 
             // txtCustomerName
             // 
@@ -211,7 +211,7 @@
             this.boxCustomerName.Name = "boxCustomerName";
             this.boxCustomerName.Size = new System.Drawing.Size(171, 20);
             this.boxCustomerName.TabIndex = 16;
-            this.boxCustomerName.TextChanged += new System.EventHandler(this.boxCustomerName_TextChanged);
+            this.boxCustomerName.TextChanged += new System.EventHandler(this.BoxCustomerName_TextChanged);
             // 
             // dataJobs
             // 
@@ -253,7 +253,7 @@
             this.dataJobs.RowHeadersVisible = false;
             this.dataJobs.Size = new System.Drawing.Size(671, 509);
             this.dataJobs.TabIndex = 8;
-            this.dataJobs.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataJobs_ClickEdit);
+            this.dataJobs.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataJobs_ClickEdit);
             // 
             // btnEdit
             // 
@@ -283,7 +283,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "frmHome";
             this.Text = "Home";
-            this.Load += new System.EventHandler(this.frmHome_Load);
+            this.Load += new System.EventHandler(this.FrmHome_Load);
             ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).EndInit();
             this.tabControl1.ResumeLayout(false);
             this.tabJobs.ResumeLayout(false);

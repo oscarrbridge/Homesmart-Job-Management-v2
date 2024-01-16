@@ -129,7 +129,7 @@
             this.btnAddTab.TabIndex = 47;
             this.btnAddTab.Text = "+";
             this.btnAddTab.UseVisualStyleBackColor = true;
-            this.btnAddTab.Click += new System.EventHandler(this.btnAddTab_Click);
+            this.btnAddTab.Click += new System.EventHandler(this.BtnAddTab_Click);
             // 
             // Edit
             // 
