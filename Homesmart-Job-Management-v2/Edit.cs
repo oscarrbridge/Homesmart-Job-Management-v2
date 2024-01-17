@@ -20,7 +20,11 @@ namespace Homesmart_Job_Management_v2
         //Run on form load
         private void Edit_Load(object sender, EventArgs e)
         {
-            int jobs = CountNumJobs();
+            string query = "SELECT COUNT(JobID) AS 'Number of Jobs' " +
+                           "FROM Job " +
+                           "WHERE CustomerID = @CustomerID;";
+
+            int jobs = CountNumJobs(query);
 
             PopulateCustomerDetails();
 
@@ -41,19 +45,19 @@ namespace Homesmart_Job_Management_v2
                 CreateTab();
             }
 
-            PopulatePages();
+            AddJobDetailTitles();
+            //PopulatePages();
         }
 
         private void PopulatePages()
         {
             AddJobDetailTitles();
-            AddPaintDetailTitles();
-            AddInternalChargeTitles();
-            AddQuoteTitles();
-            AddInvoiceTitles();
+            //AddPaintDetailTitles();
+            //AddInternalChargeTitles();
+            //AddQuoteTitles();
+            //AddInvoiceTitles();
 
             AddJobDetailInputs();
-            
             AddPaintDetailInputs();
             AddInternalChargeInputs();
             AddQuoteInputs();
@@ -61,20 +65,21 @@ namespace Homesmart_Job_Management_v2
         }
 
         //Count number of jobs for the customer
-        private int CountNumJobs()
+        private int CountNumJobs(string query)
         {
             int jobs = 0;
+
+            NumericUpDown lblJobID = new NumericUpDown();
 
             DatabaseConnection dbConnection = new DatabaseConnection();
             if (dbConnection.OpenConnection() == true)
             {
-                string query = "SELECT COUNT(JobID) AS 'Number of Jobs' " +
-                                "FROM Job " +
-                                "WHERE CustomerID = @CustomerID;";
+                
 
                 MySqlCommand cmd = new MySqlCommand(query, dbConnection.GetConnection());
 
                 cmd.Parameters.AddWithValue("@CustomerID", lblCustomerID.Value);
+                cmd.Parameters.AddWithValue("@JobID", lblJobID.Value);
 
                 MySqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -88,7 +93,7 @@ namespace Homesmart_Job_Management_v2
                 DialogResult result = MessageBox.Show("Server not found. Contact Admin", "Error", MessageBoxButtons.RetryCancel);
                 if (result == DialogResult.Retry)
                 {
-                    CountNumJobs();
+                    CountNumJobs(query);
                 }
                 else
                 {
@@ -165,12 +170,45 @@ namespace Homesmart_Job_Management_v2
             {
                 var controlsInfo = new List<(Type, string, string, int, Point, Size)>
                 {
+                    //Job Details
                     (typeof(Label), "lblSalesPerson",   "Sales Person", 10, new Point(10, 10), new Size(104, 16)),
                     (typeof(Label), "lblQuoteDetails",  "Details",      10, new Point(134, 10), new Size(104, 16)),
                     (typeof(Label), "lblQuoteOwner",    "Quote Owner",  10, new Point(263, 10), new Size(104, 16)),
                     (typeof(Label), "lblQuoteNumber",   "Quote Number", 10, new Point(385, 10), new Size(104, 16)),
                     (typeof(Label), "lblQuoteValue",    "Value",        10, new Point(633, 10), new Size(104, 16)),
-                    (typeof(NumericUpDown), "lblJobID", jobIDs[tabIndex].ToString(), 10, new Point(633, 572), new Size(104, 16)) // Fill in the JobID for this tab
+                    (typeof(NumericUpDown), "lblJobID", jobIDs[tabIndex].ToString(), 10, new Point(633, 572), new Size(104, 16)), // Fill in the JobID for this tab
+                
+                    //Paint Details
+                    (typeof(Label), "lblPaintColour",   "Paint Colour", 10, new Point(134, 83), new Size(104, 16)),
+                    (typeof(Label), "lblSurface",       "Surface",      10, new Point(258, 83), new Size(104, 16)),
+                    (typeof(Label), "lblArea",          "Area",         10, new Point(387, 83), new Size(104, 16)),
+                    (typeof(Label), "lblSupplier",      "Supplier",     10, new Point(509, 83), new Size(104, 16)),
+                    (typeof(Label), "lblValue",         "Value",        10, new Point(633, 83), new Size(104, 16)),
+                    (typeof(Button), "btnAddDetail",    "+",             8, new Point(717, 63), new Size(20, 20)),
+
+                    //Internal Charges
+                    (typeof(Label), "lblInternalCharges",   "Internal Charges",         16, new Point(10, 156), new Size(175, 30)),
+                    (typeof(Label), "lblInternalSupplier",  "Supplier / Contractor",    10, new Point(10, 193), new Size(140, 20)),
+                    (typeof(Label), "lblInternalCompany",   "Internal Company",         10, new Point(168, 193), new Size(140, 20)),
+                    (typeof(Label), "lblType",              "Type",                     10, new Point(326, 193), new Size(140, 20)),
+                    (typeof(Label), "lblValue",             "Value",                    10, new Point(633, 193), new Size(140, 20)),
+                    (typeof(Button), "btnAddCharge",        "+",                         8, new Point(717, 173), new Size(20, 20)),
+
+                    //Quotes
+                    (typeof(Label), "lblQuotes",        "Quotes",               16, new Point(10, 261), new Size(175, 30)),
+                    (typeof(Label), "lblQuoteSupplier", "Supplier / Contractor",10, new Point(10, 304), new Size(140, 20)),
+                    (typeof(Label), "lblQuoteDate",     "Date",                 10, new Point(168, 304), new Size(140, 20)),
+                    (typeof(Label), "lblQuoteReference","Reference",            10, new Point(326, 304), new Size(140, 20)),
+                    (typeof(Label), "lblQuoteValue",    "Value",                10, new Point(633, 304), new Size(140, 20)),
+                    (typeof(Button), "btnAddQuote",     "+",                     8, new Point(717, 284), new Size(20, 20)),
+
+                    //Invoices
+                    (typeof(Label), "lblInvoice",        "Invoices",              16, new Point(10, 371), new Size(175, 30)),
+                    (typeof(Label), "lblInvoiceSupplier", "Supplier / Contractor",10, new Point(10, 413), new Size(140, 20)),
+                    (typeof(Label), "lblInvoiceDate",     "Date",                 10, new Point(168, 413), new Size(140, 20)),
+                    (typeof(Label), "lblInvoiceReference","Reference",            10, new Point(326, 413), new Size(140, 20)),
+                    (typeof(Label), "lblInvoiceValue",    "Value",                10, new Point(633, 413), new Size(140, 20)),
+                    (typeof(Button), "btnAddInvoice",     "+",                     8, new Point(717, 393), new Size(20, 20))
                 };
 
                 foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
@@ -189,6 +227,7 @@ namespace Homesmart_Job_Management_v2
             }
         }
 
+        /*
         //Create paint detail elements
         private void AddPaintDetailTitles()
         {
@@ -329,6 +368,8 @@ namespace Homesmart_Job_Management_v2
             }
         }
 
+        */
+
 
         //Query SQL server
         private List<string> GetDetails(string jobID, string query)
@@ -375,7 +416,6 @@ namespace Homesmart_Job_Management_v2
 
             return jobDetails;
         }
-
 
 
         //Create job detail elements
@@ -454,7 +494,6 @@ namespace Homesmart_Job_Management_v2
             }
         }
 
-
         //Create internal charges elements
         private void AddInternalChargeInputs()
         {
@@ -491,7 +530,6 @@ namespace Homesmart_Job_Management_v2
                 tabIndex++; // Move to the next JobID for the next tab
             }
         }
-
 
         //Create quote elements
         private void AddQuoteInputs()
@@ -530,7 +568,6 @@ namespace Homesmart_Job_Management_v2
             }
         }
 
-
         //Create quote elements
         private void AddInvoiceInputs()
         {
@@ -567,6 +604,7 @@ namespace Homesmart_Job_Management_v2
                 tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
 
         private void PopulateCustomerDetails()
         {
