@@ -9,20 +9,22 @@ namespace Homesmart_Job_Management_v2
 {
     public partial class Edit : Form
     {
-        int ID;
-
         public Edit(int CustomerID)
         {
             InitializeComponent();
 
-            ID = CustomerID;
+            //ID = CustomerID;
+            lblCustomerID.Value = CustomerID;
         }
 
         //Run on form load
         private void Edit_Load(object sender, EventArgs e)
         {
             int jobs = CountNumJobs();
-            CreateJobs(jobs);
+
+            PopulateCustomerDetails();
+
+            CreateJobPages(jobs);
         }
 
         //Create a new job tab
@@ -32,21 +34,27 @@ namespace Homesmart_Job_Management_v2
         }
 
         //Loop number of jobs for the customer
-        private void CreateJobs(int jobs)
+        private void CreateJobPages(int jobs)
         {
             for (int i = 0; i < jobs; i++)
             {
                 CreateTab();
             }
 
+            PopulatePages();
+        }
+
+        private void PopulatePages()
+        {
             AddJobDetailTitles();
             AddPaintDetailTitles();
             AddInternalChargeTitles();
             AddQuoteTitles();
             AddInvoiceTitles();
 
-            AddPaintDetailInputs();
             AddJobDetailInputs();
+            
+            AddPaintDetailInputs();
             AddInternalChargeInputs();
             AddQuoteInputs();
             AddInvoiceInputs();
@@ -66,7 +74,7 @@ namespace Homesmart_Job_Management_v2
 
                 MySqlCommand cmd = new MySqlCommand(query, dbConnection.GetConnection());
 
-                cmd.Parameters.AddWithValue("@CustomerID", ID);
+                cmd.Parameters.AddWithValue("@CustomerID", lblCustomerID.Value);
 
                 MySqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -103,24 +111,68 @@ namespace Homesmart_Job_Management_v2
         //On add tab button press 
         private void BtnAddTab_Click(object sender, EventArgs e)
         {
-            CreateTab();
+            //CreateJobPages(1);
         }
+
+        private List<int> GetJobIDs()
+        {
+            List<int> jobIDs = new List<int>();
+
+            DatabaseConnection dbConnection = new DatabaseConnection();
+            if (dbConnection.OpenConnection() == true)
+            {
+                string query = "SELECT JobID " +
+                               "FROM Job " +
+                               "WHERE CustomerID = @CustomerID;";
+
+                MySqlCommand cmd = new MySqlCommand(query, dbConnection.GetConnection());
+
+                cmd.Parameters.AddWithValue("@CustomerID", lblCustomerID.Value);
+
+                MySqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    jobIDs.Add(reader.GetInt32(0));
+                }
+                reader.Close();
+            }
+            else
+            {
+                DialogResult result = MessageBox.Show("Server not found. Contact Admin", "Error", MessageBoxButtons.RetryCancel);
+                if (result == DialogResult.Retry)
+                {
+                    return GetJobIDs();
+                }
+                else
+                {
+                    Close();
+                }
+            }
+
+            return jobIDs;
+        }
+
+
 
         //Create job detail elements
         private void AddJobDetailTitles()
         {
+            List<int> jobIDs = GetJobIDs(); // Call the function to get the list of JobIDs
 
-            var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-            {
-                (typeof(Label), "lblSalesPerson",   "Sales Person", 10, new Point(10, 10), new Size(104, 16)),
-                (typeof(Label), "lblQuoteDetails",  "Details",      10, new Point(134, 10), new Size(104, 16)),
-                (typeof(Label), "lblQuoteOwner",    "Quote Owner",  10, new Point(263, 10), new Size(104, 16)),
-                (typeof(Label), "lblQuoteNumber",   "Quote Number", 10, new Point(385, 10), new Size(104, 16)),
-                (typeof(Label), "lblQuoteValue",    "Value",        10, new Point(633, 10), new Size(104, 16))
-            };
+            int tabIndex = 0;
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
+                var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+                {
+                    (typeof(Label), "lblSalesPerson",   "Sales Person", 10, new Point(10, 10), new Size(104, 16)),
+                    (typeof(Label), "lblQuoteDetails",  "Details",      10, new Point(134, 10), new Size(104, 16)),
+                    (typeof(Label), "lblQuoteOwner",    "Quote Owner",  10, new Point(263, 10), new Size(104, 16)),
+                    (typeof(Label), "lblQuoteNumber",   "Quote Number", 10, new Point(385, 10), new Size(104, 16)),
+                    (typeof(Label), "lblQuoteValue",    "Value",        10, new Point(633, 10), new Size(104, 16)),
+                    (typeof(NumericUpDown), "lblJobID", jobIDs[tabIndex].ToString(), 10, new Point(633, 572), new Size(104, 16)) // Fill in the JobID for this tab
+                };
+
                 foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
                 {
                     Control newControl = (Control)Activator.CreateInstance(controlType);
@@ -132,6 +184,8 @@ namespace Homesmart_Job_Management_v2
 
                     tabPage.Controls.Add(newControl);
                 }
+
+                tabIndex++; // Move to the next JobID for the next tab
             }
         }
 
@@ -276,22 +330,76 @@ namespace Homesmart_Job_Management_v2
         }
 
 
+        //Query SQL server
+        private List<string> GetDetails(string jobID, string query)
+        {
+            List<string> jobDetails = new List<string>();
+
+            DatabaseConnection dbConnection = new DatabaseConnection();
+            if (dbConnection.OpenConnection() == true)
+            {
+                MySqlCommand cmd = new MySqlCommand(query, dbConnection.GetConnection());
+                cmd.Parameters.AddWithValue("@JobID", jobID);
+                cmd.Parameters.AddWithValue("@CustomerID", jobID);
+
+                MySqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        if (!reader.IsDBNull(i))
+                        {
+                            jobDetails.Add(reader.GetString(i));
+                        }
+                        else
+                        {
+                            jobDetails.Add("");
+                        }
+                    }
+
+                }
+                reader.Close();
+            }
+            else
+            {
+                DialogResult result = MessageBox.Show("Server not found. Contact Admin", "Error", MessageBoxButtons.RetryCancel);
+                if (result == DialogResult.Retry)
+                {
+                    return GetDetails(jobID, query);
+                }
+                else
+                {
+                    Close();
+                }
+            }
+
+            return jobDetails;
+        }
+
+
 
         //Create job detail elements
         private void AddJobDetailInputs()
         {
+            int tabIndex = 0;
 
-            var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-            {
-                (typeof(TextBox),       "txtSalesPerson",   "", 10, new Point(10, 38), new Size(104, 16)),
-                (typeof(TextBox),       "txtQuoteDetails",  "", 10, new Point(134, 38), new Size(104, 16)),
-                (typeof(ComboBox),      "txtQuoteOwner",    "", 10, new Point(263, 38), new Size(104, 16)),
-                (typeof(TextBox),       "txtQuoteNumber",   "", 10, new Point(385, 38), new Size(104, 16)),
-                (typeof(NumericUpDown), "txtQuoteValue",    "", 10, new Point(633, 38), new Size(104, 16))
-            };
+            string query = "SELECT SalesPerson, Details, QuoteOwner, QuoteNumber, QuoteValue " +
+               "FROM Job " +
+               "WHERE JobID = @JobID;";
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
+                List<string> jobDetails = GetDetails(tabPage.Controls["lblJobID"].Text, query);
+
+                var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+                {
+                    (typeof(TextBox),       "txtSalesPerson",   jobDetails[0], 10, new Point(10, 38), new Size(104, 16)),
+                    (typeof(TextBox),       "txtQuoteDetails",  jobDetails[1], 10, new Point(134, 38), new Size(104, 16)),
+                    (typeof(ComboBox),      "txtQuoteOwner",    jobDetails[2], 10, new Point(263, 38), new Size(104, 16)),
+                    (typeof(TextBox),       "txtQuoteNumber",   jobDetails[3], 10, new Point(385, 38), new Size(104, 16)),
+                    (typeof(NumericUpDown), "txtQuoteValue",    jobDetails[4], 10, new Point(633, 38), new Size(104, 16))
+                };
+
                 foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
                 {
                     Control newControl = (Control)Activator.CreateInstance(controlType);
@@ -303,24 +411,33 @@ namespace Homesmart_Job_Management_v2
 
                     tabPage.Controls.Add(newControl);
                 }
+
+                tabIndex++; // Move to the next JobID for the next tab
             }
         }
 
         //Create paint detail elements
         private void AddPaintDetailInputs()
         {
+            int tabIndex = 0;
 
-            var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-            {
-                (typeof(TextBox),       "txtPaintColour",   "",     10, new Point(134, 106), new Size(104, 16)),
-                (typeof(TextBox),       "txtSurface",       "",     10, new Point(258, 106), new Size(104, 16)),
-                (typeof(TextBox),       "txtArea",          "",     10, new Point(387, 106), new Size(104, 16)),
-                (typeof(ComboBox),      "txtSupplier",      "",     10, new Point(509, 106), new Size(104, 16)),
-                (typeof(NumericUpDown), "txtValue",         "",     10, new Point(633, 106), new Size(104, 16)),
-            };
+            string query = "SELECT PaintColour, Surface, Area, Supplier, Value " +
+               "FROM AdditionalJobInfo " +
+               "WHERE JobID = @JobID;";
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
+                List<string> paintDetails = GetDetails(tabPage.Controls["lblJobID"].Text, query);
+
+                var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+                {
+                    (typeof(TextBox),       "txtPaintColour",   paintDetails[0], 10, new Point(134, 106), new Size(104, 16)),
+                    (typeof(TextBox),       "txtSurface",       paintDetails[1], 10, new Point(258, 106), new Size(104, 16)),
+                    (typeof(TextBox),       "txtArea",          paintDetails[2], 10, new Point(387, 106), new Size(104, 16)),
+                    (typeof(ComboBox),      "txtSupplier",      paintDetails[3], 10, new Point(509, 106), new Size(104, 16)),
+                    (typeof(NumericUpDown), "txtValue",         paintDetails[4], 10, new Point(633, 106), new Size(104, 16)),
+                };
+
                 foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
                 {
                     Control newControl = (Control)Activator.CreateInstance(controlType);
@@ -332,23 +449,33 @@ namespace Homesmart_Job_Management_v2
 
                     tabPage.Controls.Add(newControl);
                 }
+
+                tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
 
         //Create internal charges elements
         private void AddInternalChargeInputs()
         {
+            int tabIndex = 0;
 
-            var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-            {
-                (typeof(ComboBox),      "txtInternalSupplier",  "",    10, new Point(10,  225), new Size(140, 20)),
-                (typeof(ComboBox),      "txtInternalCompany",   "",    10, new Point(168, 225), new Size(140, 20)),
-                (typeof(TextBox),       "txtType",              "",    10, new Point(326, 225), new Size(140, 20)),
-                (typeof(NumericUpDown), "txtValue",             "",    10, new Point(633, 225), new Size(100, 20))
-            };
+            string query = "SELECT SupplierContractorID, CompanyName, Type, Value " +
+               "FROM InterCompanyCharge " +
+               "WHERE JobID = @JobID;";
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
+                List<string> internalChargeDetails = GetDetails(tabPage.Controls["lblJobID"].Text, query);
+
+                var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+                {
+                    (typeof(ComboBox),      "txtInternalSupplier",  internalChargeDetails[0], 10, new Point(10,  225), new Size(140, 20)),
+                    (typeof(ComboBox),      "txtInternalCompany",   internalChargeDetails[1], 10, new Point(168, 225), new Size(140, 20)),
+                    (typeof(TextBox),       "txtType",              internalChargeDetails[2], 10, new Point(326, 225), new Size(140, 20)),
+                    (typeof(NumericUpDown), "txtValue",             internalChargeDetails[3], 10, new Point(633, 225), new Size(100, 20)),
+                };
+
                 foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
                 {
                     Control newControl = (Control)Activator.CreateInstance(controlType);
@@ -360,23 +487,33 @@ namespace Homesmart_Job_Management_v2
 
                     tabPage.Controls.Add(newControl);
                 }
+
+                tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
 
         //Create quote elements
         private void AddQuoteInputs()
         {
+            int tabIndex = 0;
 
-            var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-            {
-                (typeof(ComboBox),      "txtQuoteSupplier", "", 10, new Point(10, 337), new Size(140, 20)),
-                (typeof(ComboBox),      "txtQuoteDate",     "", 10, new Point(168, 337), new Size(140, 20)),
-                (typeof(TextBox),       "txtQuoteReference","", 10, new Point(326, 337), new Size(140, 20)),
-                (typeof(NumericUpDown), "txtQuoteValue",    "", 10, new Point(633, 337), new Size(100, 20))
-            };
+            string query = "SELECT SupplierContractorID, QuoteDate, QuoteReference, QuoteValue " +
+               "FROM Quotes " +
+               "WHERE JobID = @JobID;";
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
+                List<string> quoteDetails = GetDetails(tabPage.Controls["lblJobID"].Text, query);
+
+                var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+                {
+                    (typeof(ComboBox),      "txtQuoteSupplier",  quoteDetails[0], 10, new Point(10, 337), new Size(140, 20)),
+                    (typeof(ComboBox),      "txtQuoteDate",      quoteDetails[1], 10, new Point(168, 337), new Size(140, 20)),
+                    (typeof(TextBox),       "txtQuoteReference", quoteDetails[2], 10, new Point(326, 337), new Size(140, 20)),
+                    (typeof(NumericUpDown), "txtQuoteValue",     quoteDetails[3], 10, new Point(633, 337), new Size(100, 20)),
+                };
+
                 foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
                 {
                     Control newControl = (Control)Activator.CreateInstance(controlType);
@@ -388,23 +525,33 @@ namespace Homesmart_Job_Management_v2
 
                     tabPage.Controls.Add(newControl);
                 }
+
+                tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
 
         //Create quote elements
         private void AddInvoiceInputs()
         {
+            int tabIndex = 0;
 
-            var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-            {
-                (typeof(ComboBox),      "txtInvoiceSupplier", "",   10, new Point(10,  445), new Size(140, 20)),
-                (typeof(ComboBox),      "txtInvoiceDate",     "",   10, new Point(168, 445), new Size(140, 20)),
-                (typeof(TextBox),       "txtInvoiceReference","",   10, new Point(326, 445), new Size(140, 20)),
-                (typeof(NumericUpDown), "txtInvoiceValue",    "",   10, new Point(633, 445), new Size(100, 20)),
-            };
+            string query = "SELECT SupplierContractorID, InvoiceDate, InvoiceReference, InvoiceValue " +
+               "FROM Invoices " +
+               "WHERE JobID = @JobID;";
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
+                List<string> invoiceDetails = GetDetails(tabPage.Controls["lblJobID"].Text, query);
+
+                var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+                {
+                    (typeof(ComboBox),      "txtInvoiceSupplier",  invoiceDetails[0], 10, new Point(10,  445), new Size(140, 20)),
+                    (typeof(ComboBox),      "txtInvoiceDate",      invoiceDetails[1], 10, new Point(168, 445), new Size(140, 20)),
+                    (typeof(TextBox),       "txtInvoiceReference", invoiceDetails[2], 10, new Point(326, 445), new Size(140, 20)),
+                    (typeof(NumericUpDown), "txtInvoiceValue",     invoiceDetails[3], 10, new Point(633, 445), new Size(100, 20)),
+                };
+
                 foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
                 {
                     Control newControl = (Control)Activator.CreateInstance(controlType);
@@ -416,8 +563,25 @@ namespace Homesmart_Job_Management_v2
 
                     tabPage.Controls.Add(newControl);
                 }
+
+                tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
+        private void PopulateCustomerDetails()
+        {
+            string query = "SELECT CustomerName, CustomerAddress, CustomerEmail " +
+               "FROM CustomerInfo " +
+               "WHERE CustomerID = @CustomerID;";
+
+            List<string> customerDetails = GetDetails(this.Controls["lblCustomerID"].Text, query);
+
+            this.Controls["txtCustomerName"].Text = customerDetails[0];
+            this.Controls["txtCustomerAddress"].Text = customerDetails[1];
+            this.Controls["txtCustomerEmail"].Text = customerDetails[2];
+        }
+
+
 
         /*
          *Dynamically create rows below titles

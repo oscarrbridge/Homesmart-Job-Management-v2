@@ -215,8 +215,8 @@
             // 
             // dataJobs
             // 
-            this.dataJobs.AllowUserToAddRows = false;
             this.dataJobs.AllowUserToDeleteRows = false;
+            this.dataJobs.AllowUserToOrderColumns = true;
             this.dataJobs.AllowUserToResizeColumns = false;
             this.dataJobs.AllowUserToResizeRows = false;
             dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -241,7 +241,6 @@
             this.dataJobs.Location = new System.Drawing.Point(6, 96);
             this.dataJobs.MultiSelect = false;
             this.dataJobs.Name = "dataJobs";
-            this.dataJobs.ReadOnly = true;
             dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
             dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -259,7 +258,6 @@
             // 
             this.btnEdit.HeaderText = "Edit";
             this.btnEdit.Name = "btnEdit";
-            this.btnEdit.ReadOnly = true;
             this.btnEdit.Text = "Edit";
             this.btnEdit.ToolTipText = "Edit";
             this.btnEdit.Width = 40;

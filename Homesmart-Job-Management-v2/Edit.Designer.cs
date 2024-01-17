@@ -39,7 +39,9 @@
             this.lblCustomerAddress = new System.Windows.Forms.Label();
             this.lblCustomerEmail = new System.Windows.Forms.Label();
             this.btnAddTab = new System.Windows.Forms.Button();
+            this.lblCustomerID = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lblCustomerID)).BeginInit();
             this.SuspendLayout();
             // 
             // imgLogo
@@ -123,7 +125,7 @@
             // 
             // btnAddTab
             // 
-            this.btnAddTab.Location = new System.Drawing.Point(750, 167);
+            this.btnAddTab.Location = new System.Drawing.Point(722, 163);
             this.btnAddTab.Name = "btnAddTab";
             this.btnAddTab.Size = new System.Drawing.Size(20, 20);
             this.btnAddTab.TabIndex = 47;
@@ -131,11 +133,19 @@
             this.btnAddTab.UseVisualStyleBackColor = true;
             this.btnAddTab.Click += new System.EventHandler(this.BtnAddTab_Click);
             // 
+            // lblCustomerID
+            // 
+            this.lblCustomerID.Location = new System.Drawing.Point(728, 12);
+            this.lblCustomerID.Name = "lblCustomerID";
+            this.lblCustomerID.Size = new System.Drawing.Size(44, 20);
+            this.lblCustomerID.TabIndex = 49;
+            // 
             // Edit
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 811);
+            this.Controls.Add(this.lblCustomerID);
             this.Controls.Add(this.btnAddTab);
             this.Controls.Add(this.lblCustomerEmail);
             this.Controls.Add(this.lblCustomerAddress);
@@ -151,6 +161,7 @@
             this.Text = "Edit";
             this.Load += new System.EventHandler(this.Edit_Load);
             ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lblCustomerID)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -168,5 +179,6 @@
         private System.Windows.Forms.Label lblCustomerAddress;
         private System.Windows.Forms.Label lblCustomerEmail;
         private System.Windows.Forms.Button btnAddTab;
+        private System.Windows.Forms.NumericUpDown lblCustomerID;
     }
 }
