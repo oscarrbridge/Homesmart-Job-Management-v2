@@ -46,7 +46,7 @@ namespace Homesmart_Job_Management_v2
             }
 
             AddJobDetailTitles();
-            //PopulatePages();
+            PopulatePages();
         }
 
         private void PopulatePages()
@@ -80,7 +80,7 @@ namespace Homesmart_Job_Management_v2
 
                 cmd.Parameters.AddWithValue("@CustomerID", lblCustomerID.Value);
                 cmd.Parameters.AddWithValue("@JobID", lblJobID.Value);
-
+                
                 MySqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
@@ -417,6 +417,52 @@ namespace Homesmart_Job_Management_v2
             return jobDetails;
         }
 
+        private List<List<string>> GetAllDetails(string jobID, string query)
+        {
+            List<List<string>> allJobDetails = new List<List<string>>();
+
+            DatabaseConnection dbConnection = new DatabaseConnection();
+            if (dbConnection.OpenConnection() == true)
+            {
+                MySqlCommand cmd = new MySqlCommand(query, dbConnection.GetConnection());
+                cmd.Parameters.AddWithValue("@JobID", jobID);
+
+                MySqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    List<string> jobDetails = new List<string>();
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        if (!reader.IsDBNull(i))
+                        {
+                            jobDetails.Add(reader.GetString(i));
+                        }
+                        else
+                        {
+                            jobDetails.Add("");
+                        }
+                    }
+                    allJobDetails.Add(jobDetails);
+                }
+                reader.Close();
+            }
+            else
+            {
+                DialogResult result = MessageBox.Show("Server not found. Contact Admin", "Error", MessageBoxButtons.RetryCancel);
+                if (result == DialogResult.Retry)
+                {
+                    return GetAllDetails(jobID, query);
+                }
+                else
+                {
+                    Close();
+                }
+            }
+
+            return allJobDetails;
+        }
+
+
 
         //Create job detail elements
         private void AddJobDetailInputs()
@@ -467,32 +513,42 @@ namespace Homesmart_Job_Management_v2
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                List<string> paintDetails = GetDetails(tabPage.Controls["lblJobID"].Text, query);
+                List<List<string>> allPaintDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
 
-                var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+                int yOffset = 0;
+                foreach (List<string> paintDetails in allPaintDetails)
                 {
-                    (typeof(TextBox),       "txtPaintColour",   paintDetails[0], 10, new Point(134, 106), new Size(104, 16)),
-                    (typeof(TextBox),       "txtSurface",       paintDetails[1], 10, new Point(258, 106), new Size(104, 16)),
-                    (typeof(TextBox),       "txtArea",          paintDetails[2], 10, new Point(387, 106), new Size(104, 16)),
-                    (typeof(ComboBox),      "txtSupplier",      paintDetails[3], 10, new Point(509, 106), new Size(104, 16)),
-                    (typeof(NumericUpDown), "txtValue",         paintDetails[4], 10, new Point(633, 106), new Size(104, 16)),
+                    if (paintDetails.Count >= 5)
+                    {
+                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+                {
+                    (typeof(TextBox),       "txtPaintColour",   paintDetails[0], 10, new Point(134, 106 + yOffset), new Size(104, 16)),
+                    (typeof(TextBox),       "txtSurface",       paintDetails[1], 10, new Point(258, 106 + yOffset), new Size(104, 16)),
+                    (typeof(TextBox),       "txtArea",          paintDetails[2], 10, new Point(387, 106 + yOffset), new Size(104, 16)),
+                    (typeof(ComboBox),      "txtSupplier",      paintDetails[3], 10, new Point(509, 106 + yOffset), new Size(104, 16)),
+                    (typeof(NumericUpDown), "txtValue",         paintDetails[4], 10, new Point(633, 106 + yOffset), new Size(104, 16)),
                 };
 
-                foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
-                {
-                    Control newControl = (Control)Activator.CreateInstance(controlType);
-                    newControl.Name = name;
-                    newControl.Text = text;
-                    newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
-                    newControl.Location = position;
-                    newControl.Size = size;
+                        foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
+                        {
+                            Control newControl = (Control)Activator.CreateInstance(controlType);
+                            newControl.Name = name;
+                            newControl.Text = text;
+                            newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
+                            newControl.Location = position;
+                            newControl.Size = size;
 
-                    tabPage.Controls.Add(newControl);
+                            tabPage.Controls.Add(newControl);
+                        }
+
+                        yOffset += 20; // Adjust this value as needed to space out the rows properly
+                    }
                 }
 
                 tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
 
         //Create internal charges elements
         private void AddInternalChargeInputs()
@@ -505,31 +561,41 @@ namespace Homesmart_Job_Management_v2
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                List<string> internalChargeDetails = GetDetails(tabPage.Controls["lblJobID"].Text, query);
+                List<List<string>> allInternalChargeDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
 
-                var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+                int yOffset = 0;
+                foreach (List<string> internalChargeDetails in allInternalChargeDetails)
                 {
-                    (typeof(ComboBox),      "txtInternalSupplier",  internalChargeDetails[0], 10, new Point(10,  225), new Size(140, 20)),
-                    (typeof(ComboBox),      "txtInternalCompany",   internalChargeDetails[1], 10, new Point(168, 225), new Size(140, 20)),
-                    (typeof(TextBox),       "txtType",              internalChargeDetails[2], 10, new Point(326, 225), new Size(140, 20)),
-                    (typeof(NumericUpDown), "txtValue",             internalChargeDetails[3], 10, new Point(633, 225), new Size(100, 20)),
+                    if (internalChargeDetails.Count >= 4)
+                    {
+                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+                {
+                    (typeof(ComboBox),      "txtInternalSupplier",  internalChargeDetails[0], 10, new Point(10,  225 + yOffset), new Size(140, 20)),
+                    (typeof(ComboBox),      "txtInternalCompany",   internalChargeDetails[1], 10, new Point(168, 225 + yOffset), new Size(140, 20)),
+                    (typeof(TextBox),       "txtType",              internalChargeDetails[2], 10, new Point(326, 225 + yOffset), new Size(140, 20)),
+                    (typeof(NumericUpDown), "txtValue",             internalChargeDetails[3], 10, new Point(633, 225 + yOffset), new Size(100, 20)),
                 };
 
-                foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
-                {
-                    Control newControl = (Control)Activator.CreateInstance(controlType);
-                    newControl.Name = name;
-                    newControl.Text = text;
-                    newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
-                    newControl.Location = position;
-                    newControl.Size = size;
+                        foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
+                        {
+                            Control newControl = (Control)Activator.CreateInstance(controlType);
+                            newControl.Name = name;
+                            newControl.Text = text;
+                            newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
+                            newControl.Location = position;
+                            newControl.Size = size;
 
-                    tabPage.Controls.Add(newControl);
+                            tabPage.Controls.Add(newControl);
+                        }
+
+                        yOffset += 20; // Adjust this value as needed to space out the rows properly
+                    }
                 }
 
                 tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
 
         //Create quote elements
         private void AddQuoteInputs()
@@ -542,31 +608,41 @@ namespace Homesmart_Job_Management_v2
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                List<string> quoteDetails = GetDetails(tabPage.Controls["lblJobID"].Text, query);
+                List<List<string>> allQuoteDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
 
-                var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+                int yOffset = 0;
+                foreach (List<string> quoteDetails in allQuoteDetails)
                 {
-                    (typeof(ComboBox),      "txtQuoteSupplier",  quoteDetails[0], 10, new Point(10, 337), new Size(140, 20)),
-                    (typeof(ComboBox),      "txtQuoteDate",      quoteDetails[1], 10, new Point(168, 337), new Size(140, 20)),
-                    (typeof(TextBox),       "txtQuoteReference", quoteDetails[2], 10, new Point(326, 337), new Size(140, 20)),
-                    (typeof(NumericUpDown), "txtQuoteValue",     quoteDetails[3], 10, new Point(633, 337), new Size(100, 20)),
+                    if (quoteDetails.Count >= 4)
+                    {
+                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+                {
+                    (typeof(ComboBox),      "txtQuoteSupplier",  quoteDetails[0], 10, new Point(10, 337 + yOffset), new Size(140, 20)),
+                    (typeof(ComboBox),      "txtQuoteDate",      quoteDetails[1], 10, new Point(168, 337 + yOffset), new Size(140, 20)),
+                    (typeof(TextBox),       "txtQuoteReference", quoteDetails[2], 10, new Point(326, 337 + yOffset), new Size(140, 20)),
+                    (typeof(NumericUpDown), "txtQuoteValue",     quoteDetails[3], 10, new Point(633, 337 + yOffset), new Size(100, 20)),
                 };
 
-                foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
-                {
-                    Control newControl = (Control)Activator.CreateInstance(controlType);
-                    newControl.Name = name;
-                    newControl.Text = text;
-                    newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
-                    newControl.Location = position;
-                    newControl.Size = size;
+                        foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
+                        {
+                            Control newControl = (Control)Activator.CreateInstance(controlType);
+                            newControl.Name = name;
+                            newControl.Text = text;
+                            newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
+                            newControl.Location = position;
+                            newControl.Size = size;
 
-                    tabPage.Controls.Add(newControl);
+                            tabPage.Controls.Add(newControl);
+                        }
+
+                        yOffset += 20; // Adjust this value as needed to space out the rows properly
+                    }
                 }
 
                 tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
 
         //Create quote elements
         private void AddInvoiceInputs()
@@ -579,31 +655,41 @@ namespace Homesmart_Job_Management_v2
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                List<string> invoiceDetails = GetDetails(tabPage.Controls["lblJobID"].Text, query);
+                List<List<string>> allInvoiceDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
 
-                var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+                int yOffset = 0;
+                foreach (List<string> invoiceDetails in allInvoiceDetails)
                 {
-                    (typeof(ComboBox),      "txtInvoiceSupplier",  invoiceDetails[0], 10, new Point(10,  445), new Size(140, 20)),
-                    (typeof(ComboBox),      "txtInvoiceDate",      invoiceDetails[1], 10, new Point(168, 445), new Size(140, 20)),
-                    (typeof(TextBox),       "txtInvoiceReference", invoiceDetails[2], 10, new Point(326, 445), new Size(140, 20)),
-                    (typeof(NumericUpDown), "txtInvoiceValue",     invoiceDetails[3], 10, new Point(633, 445), new Size(100, 20)),
+                    if (invoiceDetails.Count >= 4)
+                    {
+                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+                {
+                    (typeof(ComboBox),      "txtInvoiceSupplier",  invoiceDetails[0], 10, new Point(10,  445 + yOffset), new Size(140, 20)),
+                    (typeof(ComboBox),      "txtInvoiceDate",      invoiceDetails[1], 10, new Point(168, 445 + yOffset), new Size(140, 20)),
+                    (typeof(TextBox),       "txtInvoiceReference", invoiceDetails[2], 10, new Point(326, 445 + yOffset), new Size(140, 20)),
+                    (typeof(NumericUpDown), "txtInvoiceValue",     invoiceDetails[3], 10, new Point(633, 445 + yOffset), new Size(100, 20)),
                 };
 
-                foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
-                {
-                    Control newControl = (Control)Activator.CreateInstance(controlType);
-                    newControl.Name = name;
-                    newControl.Text = text;
-                    newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
-                    newControl.Location = position;
-                    newControl.Size = size;
+                        foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
+                        {
+                            Control newControl = (Control)Activator.CreateInstance(controlType);
+                            newControl.Name = name;
+                            newControl.Text = text;
+                            newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
+                            newControl.Location = position;
+                            newControl.Size = size;
 
-                    tabPage.Controls.Add(newControl);
+                            tabPage.Controls.Add(newControl);
+                        }
+
+                        yOffset += 30; // Adjust this value as needed to space out the rows properly
+                    }
                 }
 
                 tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
 
 
         private void PopulateCustomerDetails()
