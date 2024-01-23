@@ -640,11 +640,5 @@ namespace Homesmart_Job_Management_v2
             this.Controls["txtCustomerEmail"].Text = customerDetails[2];
         }
 
-
-
-        /*
-         *Dynamically create rows below titles
-         *Start importing the information to the form
-        */
     }
 }
