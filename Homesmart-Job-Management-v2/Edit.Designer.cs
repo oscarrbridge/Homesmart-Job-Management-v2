@@ -30,7 +30,6 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Edit));
             this.imgLogo = new System.Windows.Forms.PictureBox();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
             this.lblCustomerInfo = new System.Windows.Forms.Label();
             this.txtCustomerName = new System.Windows.Forms.TextBox();
             this.txtCustomerAddress = new System.Windows.Forms.TextBox();
@@ -40,6 +39,7 @@
             this.lblCustomerEmail = new System.Windows.Forms.Label();
             this.btnAddTab = new System.Windows.Forms.Button();
             this.lblCustomerID = new System.Windows.Forms.NumericUpDown();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
             ((System.ComponentModel.ISupportInitialize)(this.imgLogo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lblCustomerID)).BeginInit();
             this.SuspendLayout();
@@ -53,14 +53,6 @@
             this.imgLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.imgLogo.TabIndex = 6;
             this.imgLogo.TabStop = false;
-            // 
-            // tabControl1
-            // 
-            this.tabControl1.Location = new System.Drawing.Point(12, 165);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(760, 634);
-            this.tabControl1.TabIndex = 7;
             // 
             // lblCustomerInfo
             // 
@@ -140,10 +132,19 @@
             this.lblCustomerID.Size = new System.Drawing.Size(44, 20);
             this.lblCustomerID.TabIndex = 49;
             // 
+            // tabControl1
+            // 
+            this.tabControl1.Location = new System.Drawing.Point(12, 165);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(760, 634);
+            this.tabControl1.TabIndex = 7;
+            // 
             // Edit
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(784, 811);
             this.Controls.Add(this.lblCustomerID);
             this.Controls.Add(this.btnAddTab);
@@ -170,7 +171,6 @@
         #endregion
 
         private System.Windows.Forms.PictureBox imgLogo;
-        private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.Label lblCustomerInfo;
         private System.Windows.Forms.TextBox txtCustomerName;
         private System.Windows.Forms.TextBox txtCustomerAddress;
@@ -180,5 +180,6 @@
         private System.Windows.Forms.Label lblCustomerEmail;
         private System.Windows.Forms.Button btnAddTab;
         private System.Windows.Forms.NumericUpDown lblCustomerID;
+        private System.Windows.Forms.TabControl tabControl1;
     }
 }

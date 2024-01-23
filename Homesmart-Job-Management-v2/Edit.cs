@@ -9,6 +9,11 @@ namespace Homesmart_Job_Management_v2
 {
     public partial class Edit : Form
     {
+        int PaintOffset = 0;
+        int InternalOffset = 0;
+        int QuoteOffset = 0;
+        int InvoiceOffset = 0;
+
         public Edit(int CustomerID)
         {
             InitializeComponent();
@@ -157,6 +162,14 @@ namespace Homesmart_Job_Management_v2
             return jobIDs;
         }
 
+        private void Button_Click(object sender, EventArgs e)
+        {
+            // Get the parent control (e.g., a Panel or Form) that contains the controls you want to move
+            Control parentControl = ((Control)sender).Parent;
+
+            // Call MoveControlsDown with the parent control's Controls collection
+            MoveControlsDown(parentControl.Controls, 106, 20);
+        }
 
 
         //Create job detail elements
@@ -180,7 +193,7 @@ namespace Homesmart_Job_Management_v2
                 
                     //Paint Details
                     (typeof(Label), "lblPaintColour",   "Paint Colour", 10, new Point(134, 83), new Size(104, 16)),
-                    (typeof(Label), "lblSurface",       "Surface",      10, new Point(258, 83), new Size(104, 16)),
+                    (typeof(Label), "lblSurface",       "Surface",      10, new Point(263, 83), new Size(104, 16)),
                     (typeof(Label), "lblArea",          "Area",         10, new Point(387, 83), new Size(104, 16)),
                     (typeof(Label), "lblSupplier",      "Supplier",     10, new Point(509, 83), new Size(104, 16)),
                     (typeof(Label), "lblValue",         "Value",        10, new Point(633, 83), new Size(104, 16)),
@@ -219,6 +232,11 @@ namespace Homesmart_Job_Management_v2
                     newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
                     newControl.Location = position;
                     newControl.Size = size;
+
+                    if (newControl is Button button)
+                    {
+                        button.Click += Button_Click;
+                    }
 
                     tabPage.Controls.Add(newControl);
                 }
@@ -462,6 +480,17 @@ namespace Homesmart_Job_Management_v2
             return allJobDetails;
         }
 
+        //Move controls down
+        private void MoveControlsDown(Control.ControlCollection controls, int startingY, int offset)
+        {
+            foreach (Control control in controls)
+            {
+                if (control.Location.Y >= startingY)
+                {
+                    control.Location = new Point(control.Location.X, control.Location.Y + offset);
+                }
+            }
+        }
 
 
         //Create job detail elements
@@ -479,7 +508,7 @@ namespace Homesmart_Job_Management_v2
 
                 var controlsInfo = new List<(Type, string, string, int, Point, Size)>
                 {
-                    (typeof(TextBox),       "txtSalesPerson",   jobDetails[0], 10, new Point(10, 38), new Size(104, 16)),
+                    (typeof(TextBox),       "txtSalesPerson",   jobDetails[0], 10, new Point(10,  38), new Size(104, 16)),
                     (typeof(TextBox),       "txtQuoteDetails",  jobDetails[1], 10, new Point(134, 38), new Size(104, 16)),
                     (typeof(ComboBox),      "txtQuoteOwner",    jobDetails[2], 10, new Point(263, 38), new Size(104, 16)),
                     (typeof(TextBox),       "txtQuoteNumber",   jobDetails[3], 10, new Point(385, 38), new Size(104, 16)),
@@ -515,20 +544,26 @@ namespace Homesmart_Job_Management_v2
             {
                 List<List<string>> allPaintDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
 
-                int yOffset = 0;
                 foreach (List<string> paintDetails in allPaintDetails)
                 {
                     if (paintDetails.Count >= 5)
                     {
-                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-                {
-                    (typeof(TextBox),       "txtPaintColour",   paintDetails[0], 10, new Point(134, 106 + yOffset), new Size(104, 16)),
-                    (typeof(TextBox),       "txtSurface",       paintDetails[1], 10, new Point(258, 106 + yOffset), new Size(104, 16)),
-                    (typeof(TextBox),       "txtArea",          paintDetails[2], 10, new Point(387, 106 + yOffset), new Size(104, 16)),
-                    (typeof(ComboBox),      "txtSupplier",      paintDetails[3], 10, new Point(509, 106 + yOffset), new Size(104, 16)),
-                    (typeof(NumericUpDown), "txtValue",         paintDetails[4], 10, new Point(633, 106 + yOffset), new Size(104, 16)),
-                };
+                        // Calculate the total height of the controls to be added in this iteration
+                        int totalHeight = 20; // Assuming each control has a height of 20
 
+                        // Move all controls below the new Y-position down
+                        MoveControlsDown(tabPage.Controls, 106 + PaintOffset, totalHeight);
+
+                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+{
+    (typeof(TextBox),       "txtPaintColour",   paintDetails[0], 10, new Point(134, 106 + PaintOffset), new Size(104, 16)),
+    (typeof(TextBox),       "txtSurface",       paintDetails[1], 10, new Point(258, 106 + PaintOffset), new Size(104, 16)),
+    (typeof(TextBox),       "txtArea",          paintDetails[2], 10, new Point(387, 106 + PaintOffset), new Size(104, 16)),
+    (typeof(ComboBox),      "txtSupplier",      paintDetails[3], 10, new Point(509, 106 + PaintOffset), new Size(104, 16)),
+    (typeof(NumericUpDown), "txtValue",         paintDetails[4], 10, new Point(633, 106 + PaintOffset), new Size(104, 16)),
+};
+
+                        Control lastControl = null;
                         foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
                         {
                             Control newControl = (Control)Activator.CreateInstance(controlType);
@@ -539,15 +574,19 @@ namespace Homesmart_Job_Management_v2
                             newControl.Size = size;
 
                             tabPage.Controls.Add(newControl);
+                            lastControl = newControl;
                         }
-
-                        yOffset += 20; // Adjust this value as needed to space out the rows properly
                     }
+                    PaintOffset += 20;
+                    InternalOffset += 20;
+                    QuoteOffset += 20;
+                    InvoiceOffset += 20;
                 }
 
                 tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
 
 
         //Create internal charges elements
@@ -563,19 +602,25 @@ namespace Homesmart_Job_Management_v2
             {
                 List<List<string>> allInternalChargeDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
 
-                int yOffset = 0;
                 foreach (List<string> internalChargeDetails in allInternalChargeDetails)
                 {
                     if (internalChargeDetails.Count >= 4)
                     {
-                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-                {
-                    (typeof(ComboBox),      "txtInternalSupplier",  internalChargeDetails[0], 10, new Point(10,  225 + yOffset), new Size(140, 20)),
-                    (typeof(ComboBox),      "txtInternalCompany",   internalChargeDetails[1], 10, new Point(168, 225 + yOffset), new Size(140, 20)),
-                    (typeof(TextBox),       "txtType",              internalChargeDetails[2], 10, new Point(326, 225 + yOffset), new Size(140, 20)),
-                    (typeof(NumericUpDown), "txtValue",             internalChargeDetails[3], 10, new Point(633, 225 + yOffset), new Size(100, 20)),
-                };
+                        // Calculate the total height of the controls to be added in this iteration
+                        int totalHeight = 20; // Assuming each control has a height of 20
 
+                        // Move all controls below the new Y-position down
+                        MoveControlsDown(tabPage.Controls, 225 + InternalOffset, totalHeight);
+
+                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+        {
+            (typeof(ComboBox),      "txtInternalSupplier",  internalChargeDetails[0], 10, new Point(10,  225 + InternalOffset), new Size(140, 20)),
+            (typeof(ComboBox),      "txtInternalCompany",   internalChargeDetails[1], 10, new Point(168, 225 + InternalOffset), new Size(140, 20)),
+            (typeof(TextBox),       "txtType",              internalChargeDetails[2], 10, new Point(326, 225 + InternalOffset), new Size(140, 20)),
+            (typeof(NumericUpDown), "txtValue",             internalChargeDetails[3], 10, new Point(633, 225 + InternalOffset), new Size(100, 20)),
+        };
+
+                        Control lastControl = null;
                         foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
                         {
                             Control newControl = (Control)Activator.CreateInstance(controlType);
@@ -586,15 +631,18 @@ namespace Homesmart_Job_Management_v2
                             newControl.Size = size;
 
                             tabPage.Controls.Add(newControl);
+                            lastControl = newControl;
                         }
-
-                        yOffset += 20; // Adjust this value as needed to space out the rows properly
                     }
+                    InternalOffset += 20;
+                    QuoteOffset += 20;
+                    InvoiceOffset += 20;
                 }
 
                 tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
 
 
         //Create quote elements
@@ -610,19 +658,25 @@ namespace Homesmart_Job_Management_v2
             {
                 List<List<string>> allQuoteDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
 
-                int yOffset = 0;
                 foreach (List<string> quoteDetails in allQuoteDetails)
                 {
                     if (quoteDetails.Count >= 4)
                     {
-                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-                {
-                    (typeof(ComboBox),      "txtQuoteSupplier",  quoteDetails[0], 10, new Point(10, 337 + yOffset), new Size(140, 20)),
-                    (typeof(ComboBox),      "txtQuoteDate",      quoteDetails[1], 10, new Point(168, 337 + yOffset), new Size(140, 20)),
-                    (typeof(TextBox),       "txtQuoteReference", quoteDetails[2], 10, new Point(326, 337 + yOffset), new Size(140, 20)),
-                    (typeof(NumericUpDown), "txtQuoteValue",     quoteDetails[3], 10, new Point(633, 337 + yOffset), new Size(100, 20)),
-                };
+                        // Calculate the total height of the controls to be added in this iteration
+                        int totalHeight = 20; // Assuming each control has a height of 20
 
+                        // Move all controls below the new Y-position down
+                        MoveControlsDown(tabPage.Controls, 337 + QuoteOffset, totalHeight);
+
+                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+{
+    (typeof(ComboBox),      "txtQuoteSupplier",  quoteDetails[0], 10, new Point(10,  337 + QuoteOffset), new Size(140, 20)),
+    (typeof(ComboBox),      "txtQuoteDate",      quoteDetails[1], 10, new Point(168, 337 + QuoteOffset), new Size(140, 20)),
+    (typeof(TextBox),       "txtQuoteReference", quoteDetails[2], 10, new Point(326, 337 + QuoteOffset), new Size(140, 20)),
+    (typeof(NumericUpDown), "txtQuoteValue",     quoteDetails[3], 10, new Point(633, 337 + QuoteOffset), new Size(100, 20)),
+};
+
+                        Control lastControl = null;
                         foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
                         {
                             Control newControl = (Control)Activator.CreateInstance(controlType);
@@ -633,15 +687,17 @@ namespace Homesmart_Job_Management_v2
                             newControl.Size = size;
 
                             tabPage.Controls.Add(newControl);
+                            lastControl = newControl;
                         }
-
-                        yOffset += 20; // Adjust this value as needed to space out the rows properly
                     }
+                    QuoteOffset += 20;
+                    InvoiceOffset += 20;
                 }
 
                 tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
 
 
         //Create quote elements
@@ -657,19 +713,25 @@ namespace Homesmart_Job_Management_v2
             {
                 List<List<string>> allInvoiceDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
 
-                int yOffset = 0;
                 foreach (List<string> invoiceDetails in allInvoiceDetails)
                 {
                     if (invoiceDetails.Count >= 4)
                     {
-                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-                {
-                    (typeof(ComboBox),      "txtInvoiceSupplier",  invoiceDetails[0], 10, new Point(10,  445 + yOffset), new Size(140, 20)),
-                    (typeof(ComboBox),      "txtInvoiceDate",      invoiceDetails[1], 10, new Point(168, 445 + yOffset), new Size(140, 20)),
-                    (typeof(TextBox),       "txtInvoiceReference", invoiceDetails[2], 10, new Point(326, 445 + yOffset), new Size(140, 20)),
-                    (typeof(NumericUpDown), "txtInvoiceValue",     invoiceDetails[3], 10, new Point(633, 445 + yOffset), new Size(100, 20)),
-                };
+                        // Calculate the total height of the controls to be added in this iteration
+                        int totalHeight = 20; // Assuming each control has a height of 20
 
+                        // Move all controls below the new Y-position down
+                        MoveControlsDown(tabPage.Controls, 445 + InvoiceOffset, totalHeight);
+
+                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
+{
+    (typeof(ComboBox),      "txtInvoiceSupplier",  invoiceDetails[0], 10, new Point(10,  445 + InvoiceOffset), new Size(140, 20)),
+    (typeof(ComboBox),      "txtInvoiceDate",      invoiceDetails[1], 10, new Point(168, 445 + InvoiceOffset), new Size(140, 20)),
+    (typeof(TextBox),       "txtInvoiceReference", invoiceDetails[2], 10, new Point(326, 445 + InvoiceOffset), new Size(140, 20)),
+    (typeof(NumericUpDown), "txtInvoiceValue",     invoiceDetails[3], 10, new Point(633, 445 + InvoiceOffset), new Size(100, 20)),
+};
+
+                        Control lastControl = null;
                         foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
                         {
                             Control newControl = (Control)Activator.CreateInstance(controlType);
@@ -680,15 +742,17 @@ namespace Homesmart_Job_Management_v2
                             newControl.Size = size;
 
                             tabPage.Controls.Add(newControl);
+                            lastControl = newControl;
                         }
-
-                        yOffset += 30; // Adjust this value as needed to space out the rows properly
                     }
+                    InvoiceOffset += 20;
                 }
 
                 tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
+
 
 
 
