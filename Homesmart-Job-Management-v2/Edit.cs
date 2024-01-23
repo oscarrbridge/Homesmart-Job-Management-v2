@@ -14,6 +14,12 @@ namespace Homesmart_Job_Management_v2
         int QuoteOffset = 0;
         int InvoiceOffset = 0;
 
+        int lblJobDetailsY = 10;
+        int lblPaintDetailsY = 83;
+        int lblInternalChargesY = 193;
+        int lblQuotesY = 304;
+        int lblInvoicesY = 413;
+
         public Edit(int CustomerID)
         {
             InitializeComponent();
@@ -171,12 +177,6 @@ namespace Homesmart_Job_Management_v2
             MoveControlsDown(parentControl.Controls, 106, 20);
         }
 
-        int lblJobDetailsY = 10;
-        int lblPaintDetailsY = 83;
-        int lblInternalChargesY = 193;
-        int lblQuotesY = 304;
-        int lblInvoicesY = 413;
-
         //Create job detail elements
         private void AddJobDetailTitles()
         {
@@ -186,6 +186,11 @@ namespace Homesmart_Job_Management_v2
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
+
+                Panel panel = new Panel();
+                panel.Dock = DockStyle.Fill;
+                panel.Name = "panel" + tabIndex;
+
                 var controlsInfo = new List<(Type, string, string, int, Point, Size)>
                 {
                     //Job Details
@@ -242,6 +247,15 @@ namespace Homesmart_Job_Management_v2
                     {
                         button.Click += Button_Click;
                     }
+                    else if (newControl is DateTimePicker dateTimePicker)
+                    {
+                        dateTimePicker.Format = DateTimePickerFormat.Custom;
+                        dateTimePicker.CustomFormat = "dd/MM/yy";
+                    }
+
+
+
+                    //tabPage.Controls.Add(panel);
 
                     tabPage.Controls.Add(newControl);
                 }
@@ -249,149 +263,6 @@ namespace Homesmart_Job_Management_v2
                 tabIndex++; // Move to the next JobID for the next tab
             }
         }
-
-        /*
-        //Create paint detail elements
-        private void AddPaintDetailTitles()
-        {
-
-            var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-            {
-                (typeof(Label), "lblPaintColour",   "Paint Colour", 10, new Point(134, 83), new Size(104, 16)),
-                (typeof(Label), "lblSurface",       "Surface",      10, new Point(258, 83), new Size(104, 16)),
-                (typeof(Label), "lblArea",          "Area",         10, new Point(387, 83), new Size(104, 16)),
-                (typeof(Label), "lblSupplier",      "Supplier",     10, new Point(509, 83), new Size(104, 16)),
-                (typeof(Label), "lblValue",         "Value",        10, new Point(633, 83), new Size(104, 16)),
-                (typeof(Button), "btnAddDetail",    "+",             8, new Point(717, 63), new Size(20, 20))
-            };
-
-            foreach (TabPage tabPage in tabControl1.TabPages)
-            {
-                foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
-                {
-                    Control newControl = (Control)Activator.CreateInstance(controlType);
-                    newControl.Name = name;
-                    newControl.Text = text;
-                    newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
-                    newControl.Location = position;
-                    newControl.Size = size;
-
-                    if (newControl is Button button)
-                    {
-                        //button.Click += Button_Click;
-                    }
-
-                    tabPage.Controls.Add(newControl);
-                }
-            }
-        }
-
-        //Create internal charges elements
-        private void AddInternalChargeTitles()
-        {
-
-            var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-            {
-                (typeof(Label), "lblInternalCharges",   "Internal Charges",         16, new Point(10, 156), new Size(175, 30)),
-                (typeof(Label), "lblInternalSupplier",  "Supplier / Contractor",    10, new Point(10, 193), new Size(140, 20)),
-                (typeof(Label), "lblInternalCompany",   "Internal Company",         10, new Point(168, 193), new Size(140, 20)),
-                (typeof(Label), "lblType",              "Type",                     10, new Point(326, 193), new Size(140, 20)),
-                (typeof(Label), "lblValue",             "Value",                    10, new Point(633, 193), new Size(140, 20)),
-                (typeof(Button), "btnAddCharge",        "+",                         8, new Point(717, 173), new Size(20, 20))
-            };
-
-            foreach (TabPage tabPage in tabControl1.TabPages)
-            {
-                foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
-                {
-                    Control newControl = (Control)Activator.CreateInstance(controlType);
-                    newControl.Name = name;
-                    newControl.Text = text;
-                    newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
-                    newControl.Location = position;
-                    newControl.Size = size;
-
-                    if (newControl is Button button)
-                    {
-                        //button.Click += Button_Click;
-                    }
-
-                    tabPage.Controls.Add(newControl);
-                }
-            }
-        }
-
-        //Create quote elements
-        private void AddQuoteTitles()
-        {
-
-            var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-            {
-                (typeof(Label), "lblQuotes",        "Quotes",               16, new Point(10, 261), new Size(175, 30)),
-                (typeof(Label), "lblQuoteSupplier", "Supplier / Contractor",10, new Point(10, 304), new Size(140, 20)),
-                (typeof(Label), "lblQuoteDate",     "Date",                 10, new Point(168, 304), new Size(140, 20)),
-                (typeof(Label), "lblQuoteReference","Reference",            10, new Point(326, 304), new Size(140, 20)),
-                (typeof(Label), "lblQuoteValue",    "Value",                10, new Point(633, 304), new Size(140, 20)),
-                (typeof(Button), "btnAddQuote",     "+",                     8, new Point(717, 284), new Size(20, 20))
-            };
-
-            foreach (TabPage tabPage in tabControl1.TabPages)
-            {
-                foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
-                {
-                    Control newControl = (Control)Activator.CreateInstance(controlType);
-                    newControl.Name = name;
-                    newControl.Text = text;
-                    newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
-                    newControl.Location = position;
-                    newControl.Size = size;
-
-                    if (newControl is Button button)
-                    {
-                        //button.Click += Button_Click;
-                    }
-
-                    tabPage.Controls.Add(newControl);
-                }
-            }
-        }
-
-        //Create quote elements
-        private void AddInvoiceTitles()
-        {
-
-            var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-            {
-                (typeof(Label), "lblInvoice",        "Invoices",              16, new Point(10, 371), new Size(175, 30)),
-                (typeof(Label), "lblInvoiceSupplier", "Supplier / Contractor",10, new Point(10, 413), new Size(140, 20)),
-                (typeof(Label), "lblInvoiceDate",     "Date",                 10, new Point(168, 413), new Size(140, 20)),
-                (typeof(Label), "lblInvoiceReference","Reference",            10, new Point(326, 413), new Size(140, 20)),
-                (typeof(Label), "lblInvoiceValue",    "Value",                10, new Point(633, 413), new Size(140, 20)),
-                (typeof(Button), "btnAddInvoice",     "+",                     8, new Point(717, 393), new Size(20, 20))
-            };
-
-            foreach (TabPage tabPage in tabControl1.TabPages)
-            {
-                foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
-                {
-                    Control newControl = (Control)Activator.CreateInstance(controlType);
-                    newControl.Name = name;
-                    newControl.Text = text;
-                    newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
-                    newControl.Location = position;
-                    newControl.Size = size;
-
-                    if (newControl is Button button)
-                    {
-                        //button.Click += Button_Click;
-                    }
-
-                    tabPage.Controls.Add(newControl);
-                }
-            }
-        }
-
-        */
 
 
         //Query SQL server
@@ -495,7 +366,9 @@ namespace Homesmart_Job_Management_v2
                     control.Location = new Point(control.Location.X, control.Location.Y + offset);
                 }
             }
+
         }
+
 
 
         //Create job detail elements
@@ -536,6 +409,8 @@ namespace Homesmart_Job_Management_v2
             }
         }
 
+        int DropDownHeight = 30; // Assuming each control has a height of 20
+
         //Create paint detail elements
         private void AddPaintDetailInputs()
         {
@@ -553,11 +428,8 @@ namespace Homesmart_Job_Management_v2
                 {
                     if (paintDetails.Count >= 5)
                     {
-                        // Calculate the total height of the controls to be added in this iteration
-                        int totalHeight = 20; // Assuming each control has a height of 20
-
                         // Move all controls below the new Y-position down
-                        MoveControlsDown(tabPage.Controls, 106 + PaintOffset, totalHeight);
+                        MoveControlsDown(tabPage.Controls, 106 + PaintOffset, DropDownHeight);
 
                         var controlsInfo = new List<(Type, string, string, int, Point, Size)>
 {
@@ -611,11 +483,9 @@ namespace Homesmart_Job_Management_v2
                 {
                     if (internalChargeDetails.Count >= 4)
                     {
-                        // Calculate the total height of the controls to be added in this iteration
-                        int totalHeight = 20; // Assuming each control has a height of 20
 
                         // Move all controls below the new Y-position down
-                        MoveControlsDown(tabPage.Controls, 225 + InternalOffset, totalHeight);
+                        MoveControlsDown(tabPage.Controls, 225 + InternalOffset, DropDownHeight);
 
                         var controlsInfo = new List<(Type, string, string, int, Point, Size)>
         {
@@ -667,11 +537,9 @@ namespace Homesmart_Job_Management_v2
                 {
                     if (quoteDetails.Count >= 4)
                     {
-                        // Calculate the total height of the controls to be added in this iteration
-                        int totalHeight = 20; // Assuming each control has a height of 20
 
                         // Move all controls below the new Y-position down
-                        MoveControlsDown(tabPage.Controls, 337 + QuoteOffset, totalHeight);
+                        MoveControlsDown(tabPage.Controls, 337 + QuoteOffset, DropDownHeight);
 
                         var controlsInfo = new List<(Type, string, string, int, Point, Size)>
 {
@@ -722,11 +590,9 @@ namespace Homesmart_Job_Management_v2
                 {
                     if (invoiceDetails.Count >= 4)
                     {
-                        // Calculate the total height of the controls to be added in this iteration
-                        int totalHeight = 20; // Assuming each control has a height of 20
 
                         // Move all controls below the new Y-position down
-                        MoveControlsDown(tabPage.Controls, 445 + InvoiceOffset, totalHeight);
+                        MoveControlsDown(tabPage.Controls, 445 + InvoiceOffset, DropDownHeight);
 
                         var controlsInfo = new List<(Type, string, string, int, Point, Size)>
 {
