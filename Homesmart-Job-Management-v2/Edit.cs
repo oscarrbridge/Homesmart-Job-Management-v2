@@ -9,6 +9,10 @@ namespace Homesmart_Job_Management_v2
 {
     public partial class Edit : Form
     {
+        int DropDownHeight = 30; // Assuming each control has a height of 20
+
+        int InputOffset = 20;
+
         int PaintOffset = 0;
         int InternalOffset = 0;
         int QuoteOffset = 0;
@@ -16,9 +20,9 @@ namespace Homesmart_Job_Management_v2
 
         int lblJobDetailsY = 10;
         int lblPaintDetailsY = 83;
-        int lblInternalChargesY = 193;
-        int lblQuotesY = 304;
-        int lblInvoicesY = 413;
+        int lblInternalChargesY = 163;
+        int lblQuotesY = 243;
+        int lblInvoicesY = 323;
 
         public Edit(int CustomerID)
         {
@@ -202,36 +206,36 @@ namespace Homesmart_Job_Management_v2
                     (typeof(NumericUpDown), "lblJobID", jobIDs[tabIndex].ToString(), 10, new Point(633, 572), new Size(104, 16)), // Fill in the JobID for this tab
                
                     //Paint Details
+                    (typeof(Button), "btnAddDetail",    "+",             8, new Point(717, lblPaintDetailsY), new Size(20, 20)),
                     (typeof(Label), "lblPaintColour",   "Paint Colour", 10, new Point(134, lblPaintDetailsY), new Size(104, 16)),
                     (typeof(Label), "lblSurface",       "Surface",      10, new Point(263, lblPaintDetailsY), new Size(104, 16)),
                     (typeof(Label), "lblArea",          "Area",         10, new Point(387, lblPaintDetailsY), new Size(104, 16)),
                     (typeof(Label), "lblSupplier",      "Supplier",     10, new Point(509, lblPaintDetailsY), new Size(104, 16)),
                     (typeof(Label), "lblValue",         "Value",        10, new Point(633, lblPaintDetailsY), new Size(104, 16)),
-                    (typeof(Button), "btnAddDetail",    "+",             8, new Point(717, 63), new Size(20, 20)),
 
                     //Internal Charges
+                    (typeof(Button), "btnAddCharge",        "+",                         8, new Point(717, lblInternalChargesY), new Size(20,  20)),
                     (typeof(Label), "lblInternalCharges",   "Internal Charges",         16, new Point(10,  lblInternalChargesY - 30), new Size(175, 30)),
                     (typeof(Label), "lblInternalSupplier",  "Supplier / Contractor",    10, new Point(10,  lblInternalChargesY), new Size(140, 16)),
                     (typeof(Label), "lblInternalCompany",   "Internal Company",         10, new Point(168, lblInternalChargesY), new Size(140, 16)),
                     (typeof(Label), "lblType",              "Type",                     10, new Point(326, lblInternalChargesY), new Size(140, 16)),
                     (typeof(Label), "lblValue",             "Value",                    10, new Point(633, lblInternalChargesY), new Size(140, 16)),
-                    (typeof(Button), "btnAddCharge",        "+",                         8, new Point(717, 173), new Size(20,  20)),
 
                     //Quotes
+                    (typeof(Button), "btnAddQuote",     "+",                     8, new Point(717, lblQuotesY), new Size(20,  20)),
                     (typeof(Label), "lblQuotes",        "Quotes",               16, new Point(10,  lblQuotesY - 30), new Size(175,  30)),
                     (typeof(Label), "lblQuoteSupplier", "Supplier / Contractor",10, new Point(10,  lblQuotesY), new Size(140,  16)),
                     (typeof(Label), "lblQuoteDate",     "Date",                 10, new Point(168, lblQuotesY), new Size(140, 16)),
                     (typeof(Label), "lblQuoteReference","Reference",            10, new Point(326, lblQuotesY), new Size(140, 16)),
                     (typeof(Label), "lblQuoteValue",    "Value",                10, new Point(633, lblQuotesY), new Size(140, 16)),
-                    (typeof(Button), "btnAddQuote",     "+",                     8, new Point(717, 284), new Size(20,  20)),
 
                     //Invoices
-                    (typeof(Label), "lblInvoice",        "Invoices",              16, new Point(10,  lblInvoicesY -30), new Size(175,  30)),
+                    (typeof(Button), "btnAddInvoice",     "+",                     8, new Point(717, lblInvoicesY), new Size(20,  20)),
+                    (typeof(Label), "lblInvoice",        "Invoices",              16, new Point(10,  lblInvoicesY - 30), new Size(175,  30)),
                     (typeof(Label), "lblInvoiceSupplier", "Supplier / Contractor",10, new Point(10,  lblInvoicesY), new Size(140,  16)),
                     (typeof(Label), "lblInvoiceDate",     "Date",                 10, new Point(168, lblInvoicesY), new Size(140, 16)),
                     (typeof(Label), "lblInvoiceReference","Reference",            10, new Point(326, lblInvoicesY), new Size(140, 16)),
                     (typeof(Label), "lblInvoiceValue",    "Value",                10, new Point(633, lblInvoicesY), new Size(140, 16)),
-                    (typeof(Button), "btnAddInvoice",     "+",                     8, new Point(717, 393), new Size(20,  20))
                 };
 
                 foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
@@ -369,6 +373,47 @@ namespace Homesmart_Job_Management_v2
 
         }
 
+        private void AddInputs(string query, List<(Type, string, int, Point, Size)> controlsInfo, ref int offset, int controlsY)
+        {
+            int tabIndex = 0;
+
+            foreach (TabPage tabPage in tabControl1.TabPages)
+            {
+                List<List<string>> allDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
+
+                foreach (List<string> details in allDetails)
+                {
+                    if (details.Count >= controlsInfo.Count)
+                    {
+                        // Move all controls below the new Y-position down
+                        MoveControlsDown(tabPage.Controls, controlsY + offset, DropDownHeight);
+
+                        Control lastControl = null;
+                        for (int i = 0; i < controlsInfo.Count; i++)
+                        {
+                            var (controlType, name, fontSize, position, size) = controlsInfo[i];
+                            string text = details[i];
+
+                            Control newControl = (Control)Activator.CreateInstance(controlType);
+                            newControl.Name = name;
+                            newControl.Text = text;
+                            newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
+                            newControl.Location = new Point(position.X, position.Y + offset); // Update the Y position based on the offset
+                            newControl.Size = size;
+
+                            tabPage.Controls.Add(newControl);
+                            lastControl = newControl;
+                        }
+                        offset += DropDownHeight; // Move this line inside the inner loop
+                    }
+                }
+
+                tabIndex++; // Move to the next JobID for the next tab
+            }
+        }
+
+
+
 
 
         //Create job detail elements
@@ -386,11 +431,11 @@ namespace Homesmart_Job_Management_v2
 
                 var controlsInfo = new List<(Type, string, string, int, Point, Size)>
                 {
-                    (typeof(TextBox),       "txtSalesPerson",   jobDetails[0], 8, new Point(10,  (lblJobDetailsY + 20)), new Size(104, 16)),
-                    (typeof(TextBox),       "txtQuoteDetails",  jobDetails[1], 8, new Point(134, (lblJobDetailsY + 20)), new Size(104, 16)),
-                    (typeof(ComboBox),      "txtQuoteOwner",    jobDetails[2], 8, new Point(263, (lblJobDetailsY + 20)), new Size(104, 16)),
-                    (typeof(TextBox),       "txtQuoteNumber",   jobDetails[3], 8, new Point(385, (lblJobDetailsY + 20)), new Size(104, 16)),
-                    (typeof(NumericUpDown), "txtQuoteValue",    jobDetails[4], 8, new Point(633, (lblJobDetailsY + 20)), new Size(104, 16))
+                    (typeof(TextBox),       "txtSalesPerson",   jobDetails[0], 8, new Point(10,  (lblJobDetailsY + InputOffset)), new Size(104, 16)),
+                    (typeof(TextBox),       "txtQuoteDetails",  jobDetails[1], 8, new Point(134, (lblJobDetailsY + InputOffset)), new Size(104, 16)),
+                    (typeof(ComboBox),      "txtQuoteOwner",    jobDetails[2], 8, new Point(263, (lblJobDetailsY + InputOffset)), new Size(104, 16)),
+                    (typeof(TextBox),       "txtQuoteNumber",   jobDetails[3], 8, new Point(385, (lblJobDetailsY + InputOffset)), new Size(104, 16)),
+                    (typeof(NumericUpDown), "txtQuoteValue",    jobDetails[4], 8, new Point(633, (lblJobDetailsY + InputOffset)), new Size(104, 16))
                 };
 
                 foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
@@ -409,222 +454,103 @@ namespace Homesmart_Job_Management_v2
             }
         }
 
-        int DropDownHeight = 30; // Assuming each control has a height of 20
 
         //Create paint detail elements
         private void AddPaintDetailInputs()
         {
-            int tabIndex = 0;
-
             string query = "SELECT PaintColour, Surface, Area, Supplier, Value " +
                "FROM AdditionalJobInfo " +
                "WHERE JobID = @JobID;";
 
-            foreach (TabPage tabPage in tabControl1.TabPages)
+            var controlsInfo = new List<(Type, string, int, Point, Size)>
             {
-                List<List<string>> allPaintDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
+                (typeof(TextBox),       "txtPaintColour",   8, new Point(134, (lblPaintDetailsY + InputOffset)), new Size(104, 16)),
+                (typeof(TextBox),       "txtSurface",       8, new Point(263, (lblPaintDetailsY + InputOffset)), new Size(104, 16)),
+                (typeof(TextBox),       "txtArea",          8, new Point(387, (lblPaintDetailsY + InputOffset)), new Size(104, 16)),
+                (typeof(ComboBox),      "txtSupplier",      8, new Point(509, (lblPaintDetailsY + InputOffset)), new Size(104, 16)),
+                (typeof(NumericUpDown), "txtValue",         8, new Point(633, (lblPaintDetailsY + InputOffset)), new Size(104, 16)),
+            };
 
-                foreach (List<string> paintDetails in allPaintDetails)
-                {
-                    if (paintDetails.Count >= 5)
-                    {
-                        // Move all controls below the new Y-position down
-                        MoveControlsDown(tabPage.Controls, 106 + PaintOffset, DropDownHeight);
+            PaintOffset += 5; // Increase the initial offset
+            AddInputs(query, controlsInfo, ref PaintOffset, lblPaintDetailsY);
 
-                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-{
-    (typeof(TextBox),       "txtPaintColour",   paintDetails[0], 8, new Point(134, (lblPaintDetailsY + 20) + PaintOffset), new Size(104, 16)),
-    (typeof(TextBox),       "txtSurface",       paintDetails[1], 8, new Point(258, (lblPaintDetailsY + 20) + PaintOffset), new Size(104, 16)),
-    (typeof(TextBox),       "txtArea",          paintDetails[2], 8, new Point(387, (lblPaintDetailsY + 20) + PaintOffset), new Size(104, 16)),
-    (typeof(ComboBox),      "txtSupplier",      paintDetails[3], 8, new Point(509, (lblPaintDetailsY + 20) + PaintOffset), new Size(104, 16)),
-    (typeof(NumericUpDown), "txtValue",         paintDetails[4], 8, new Point(633, (lblPaintDetailsY + 20) + PaintOffset), new Size(104, 16)),
-};
-
-                        Control lastControl = null;
-                        foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
-                        {
-                            Control newControl = (Control)Activator.CreateInstance(controlType);
-                            newControl.Name = name;
-                            newControl.Text = text;
-                            newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
-                            newControl.Location = position;
-                            newControl.Size = size;
-
-                            tabPage.Controls.Add(newControl);
-                            lastControl = newControl;
-                        }
-                    }
-                    PaintOffset += 20;
-                    InternalOffset += 20;
-                    QuoteOffset += 20;
-                    InvoiceOffset += 20;
-                }
-
-                tabIndex++; // Move to the next JobID for the next tab
-            }
+            PaintOffset += DropDownHeight;
+            InternalOffset += DropDownHeight;
+            QuoteOffset += DropDownHeight;
+            InvoiceOffset += DropDownHeight;
         }
+
+
 
 
 
         //Create internal charges elements
         private void AddInternalChargeInputs()
         {
-            int tabIndex = 0;
-
             string query = "SELECT SupplierContractorID, CompanyName, Type, Value " +
                "FROM InterCompanyCharge " +
                "WHERE JobID = @JobID;";
 
-            foreach (TabPage tabPage in tabControl1.TabPages)
+            var controlsInfo = new List<(Type, string, int, Point, Size)>
             {
-                List<List<string>> allInternalChargeDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
+                (typeof(ComboBox),      "txtInternalSupplier",  8, new Point(10,  (lblInternalChargesY + InputOffset)), new Size(140, 20)),
+                (typeof(ComboBox),      "txtInternalCompany",   8, new Point(168, (lblInternalChargesY + InputOffset)), new Size(140, 20)),
+                (typeof(TextBox),       "txtType",              8, new Point(326, (lblInternalChargesY + InputOffset)), new Size(140, 20)),
+                (typeof(NumericUpDown), "txtValue",             8, new Point(633, (lblInternalChargesY + InputOffset)), new Size(100, 20)),
+            };
 
-                foreach (List<string> internalChargeDetails in allInternalChargeDetails)
-                {
-                    if (internalChargeDetails.Count >= 4)
-                    {
+            InternalOffset += 40;
+            AddInputs(query, controlsInfo, ref InternalOffset, lblInternalChargesY);
 
-                        // Move all controls below the new Y-position down
-                        MoveControlsDown(tabPage.Controls, 225 + InternalOffset, DropDownHeight);
-
-                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-        {
-            (typeof(ComboBox),      "txtInternalSupplier",  internalChargeDetails[0], 8, new Point(10,  (lblInternalChargesY + 20) + InternalOffset), new Size(140, 20)),
-            (typeof(ComboBox),      "txtInternalCompany",   internalChargeDetails[1], 8, new Point(168, (lblInternalChargesY + 20) + InternalOffset), new Size(140, 20)),
-            (typeof(TextBox),       "txtType",              internalChargeDetails[2], 8, new Point(326, (lblInternalChargesY + 20) + InternalOffset), new Size(140, 20)),
-            (typeof(NumericUpDown), "txtValue",             internalChargeDetails[3], 8, new Point(633, (lblInternalChargesY + 20) + InternalOffset), new Size(100, 20)),
-        };
-
-                        Control lastControl = null;
-                        foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
-                        {
-                            Control newControl = (Control)Activator.CreateInstance(controlType);
-                            newControl.Name = name;
-                            newControl.Text = text;
-                            newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
-                            newControl.Location = position;
-                            newControl.Size = size;
-
-                            tabPage.Controls.Add(newControl);
-                            lastControl = newControl;
-                        }
-                    }
-                    InternalOffset += 20;
-                    QuoteOffset += 20;
-                    InvoiceOffset += 20;
-                }
-
-                tabIndex++; // Move to the next JobID for the next tab
-            }
+            InternalOffset += DropDownHeight;
+            QuoteOffset += DropDownHeight;
+            InvoiceOffset += DropDownHeight;
         }
-
 
 
         //Create quote elements
         private void AddQuoteInputs()
         {
-            int tabIndex = 0;
-
             string query = "SELECT SupplierContractorID, QuoteDate, QuoteReference, QuoteValue " +
                "FROM Quotes " +
                "WHERE JobID = @JobID;";
 
-            foreach (TabPage tabPage in tabControl1.TabPages)
+            var controlsInfo = new List<(Type, string, int, Point, Size)>
             {
-                List<List<string>> allQuoteDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
+                (typeof(ComboBox),      "txtQuoteSupplier",  8, new Point(10,  (lblQuotesY + InputOffset)), new Size(140, 20)),
+                (typeof(ComboBox),      "txtQuoteDate",      8, new Point(168, (lblQuotesY + InputOffset)), new Size(140, 20)),
+                (typeof(TextBox),       "txtQuoteReference", 8, new Point(326, (lblQuotesY + InputOffset)), new Size(140, 20)),
+                (typeof(NumericUpDown), "txtQuoteValue",     8, new Point(633, (lblQuotesY + InputOffset)), new Size(100, 20)),
+            };
 
-                foreach (List<string> quoteDetails in allQuoteDetails)
-                {
-                    if (quoteDetails.Count >= 4)
-                    {
+            QuoteOffset += 70;
+            AddInputs(query, controlsInfo, ref QuoteOffset, lblQuotesY);
 
-                        // Move all controls below the new Y-position down
-                        MoveControlsDown(tabPage.Controls, 337 + QuoteOffset, DropDownHeight);
-
-                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-{
-    (typeof(ComboBox),      "txtQuoteSupplier",  quoteDetails[0], 8, new Point(10,  (lblQuotesY + 20) + QuoteOffset), new Size(140, 20)),
-    (typeof(ComboBox),      "txtQuoteDate",      quoteDetails[1], 8, new Point(168, (lblQuotesY + 20) + QuoteOffset), new Size(140, 20)),
-    (typeof(TextBox),       "txtQuoteReference", quoteDetails[2], 8, new Point(326, (lblQuotesY + 20) + QuoteOffset), new Size(140, 20)),
-    (typeof(NumericUpDown), "txtQuoteValue",     quoteDetails[3], 8, new Point(633, (lblQuotesY + 20) + QuoteOffset), new Size(100, 20)),
-};
-
-                        Control lastControl = null;
-                        foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
-                        {
-                            Control newControl = (Control)Activator.CreateInstance(controlType);
-                            newControl.Name = name;
-                            newControl.Text = text;
-                            newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
-                            newControl.Location = position;
-                            newControl.Size = size;
-
-                            tabPage.Controls.Add(newControl);
-                            lastControl = newControl;
-                        }
-                    }
-                    QuoteOffset += 20;
-                    InvoiceOffset += 20;
-                }
-
-                tabIndex++; // Move to the next JobID for the next tab
-            }
+            QuoteOffset += DropDownHeight;
+            InvoiceOffset += DropDownHeight;
         }
 
 
-
-        //Create quote elements
+        //Create invoice elements
         private void AddInvoiceInputs()
         {
-            int tabIndex = 0;
-
             string query = "SELECT SupplierContractorID, InvoiceDate, InvoiceReference, InvoiceValue " +
                "FROM Invoices " +
                "WHERE JobID = @JobID;";
-
-            foreach (TabPage tabPage in tabControl1.TabPages)
+        
+            var controlsInfo = new List<(Type, string, int, Point, Size)>
             {
-                List<List<string>> allInvoiceDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
+                (typeof(ComboBox),      "txtInvoiceSupplier",  8, new Point(10,  (lblInvoicesY + InputOffset)), new Size(140, 20)),
+                (typeof(ComboBox),      "txtInvoiceDate",      8, new Point(168, (lblInvoicesY + InputOffset)), new Size(140, 20)),
+                (typeof(TextBox),       "txtInvoiceReference", 8, new Point(326, (lblInvoicesY + InputOffset)), new Size(140, 20)),
+                (typeof(NumericUpDown), "txtInvoiceValue",     8, new Point(633, (lblInvoicesY + InputOffset)), new Size(100, 20)),
+            };
 
-                foreach (List<string> invoiceDetails in allInvoiceDetails)
-                {
-                    if (invoiceDetails.Count >= 4)
-                    {
-
-                        // Move all controls below the new Y-position down
-                        MoveControlsDown(tabPage.Controls, 445 + InvoiceOffset, DropDownHeight);
-
-                        var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-{
-    (typeof(ComboBox),      "txtInvoiceSupplier",  invoiceDetails[0], 8, new Point(10,  (lblInvoicesY + 20) + InvoiceOffset), new Size(140, 20)),
-    (typeof(ComboBox),      "txtInvoiceDate",      invoiceDetails[1], 8, new Point(168, (lblInvoicesY + 20) + InvoiceOffset), new Size(140, 20)),
-    (typeof(TextBox),       "txtInvoiceReference", invoiceDetails[2], 8, new Point(326, (lblInvoicesY + 20) + InvoiceOffset), new Size(140, 20)),
-    (typeof(NumericUpDown), "txtInvoiceValue",     invoiceDetails[3], 8, new Point(633, (lblInvoicesY + 20) + InvoiceOffset), new Size(100, 20)),
-};
-
-                        Control lastControl = null;
-                        foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
-                        {
-                            Control newControl = (Control)Activator.CreateInstance(controlType);
-                            newControl.Name = name;
-                            newControl.Text = text;
-                            newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
-                            newControl.Location = position;
-                            newControl.Size = size;
-
-                            tabPage.Controls.Add(newControl);
-                            lastControl = newControl;
-                        }
-                    }
-                    InvoiceOffset += 20;
-                }
-
-                tabIndex++; // Move to the next JobID for the next tab
-            }
+            InvoiceOffset += 100;
+            AddInputs(query, controlsInfo, ref InvoiceOffset, lblInvoicesY);
+        
+            InvoiceOffset += DropDownHeight;
         }
-
-
-
 
 
         private void PopulateCustomerDetails()
