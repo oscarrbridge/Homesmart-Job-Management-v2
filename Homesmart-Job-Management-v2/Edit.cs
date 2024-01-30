@@ -11,7 +11,7 @@ namespace Homesmart_Job_Management_v2
     {
         int DropDownHeight = 30; // How much should each item drop
 
-        int InputOffset = 20; // How low below title
+        int InputOffset = 30; // How low below title
 
         private Dictionary<TabPage, int> paintOffsets = new Dictionary<TabPage, int>();
         private Dictionary<TabPage, int> internalOffsets = new Dictionary<TabPage, int>();
@@ -20,9 +20,9 @@ namespace Homesmart_Job_Management_v2
 
         int lblJobDetailsY = 10;
         int lblPaintDetailsY = 83;
-        int lblInternalChargesY = 163;
-        int lblQuotesY = 243;
-        int lblInvoicesY = 323;
+        int lblInternalChargesY = 173;
+        int lblQuotesY = 263;
+        int lblInvoicesY = 353;
 
         public Edit(int CustomerID)
         {
@@ -370,11 +370,14 @@ namespace Homesmart_Job_Management_v2
 
             List<List<string>> allDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
 
-            MoveControlsDown(tabPage.Controls, controlsY + offsets[tabPage], DropDownHeight);
+            // Move all controls below the new Y-position down
+                    MoveControlsDown(tabPage.Controls, controlsY + offsets[tabPage], DropDownHeight);
+
             foreach (List<string> details in allDetails)
             {
                 if (details.Count >= controlsInfo.Count)
                 {
+
                     for (int i = 0; i < controlsInfo.Count; i++)
                     {
                         var (controlType, name, fontSize, position, size) = controlsInfo[i];
@@ -389,8 +392,7 @@ namespace Homesmart_Job_Management_v2
 
                         tabPage.Controls.Add(newControl);
                     }
-                    // Move all controls below the new Y-position down
-
+                    offsets[tabPage] += DropDownHeight;
                 }
             }
         }
@@ -409,17 +411,19 @@ namespace Homesmart_Job_Management_v2
                "FROM Job " +
                "WHERE JobID = @JobID;";
 
+            int yPos = lblJobDetailsY + InputOffset;
+
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
                 List<List<string>> jobDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
 
                 var controlsInfo = new List<(Type, string, string, int, Point, Size)>
         {
-            (typeof(TextBox),       "txtSalesPerson",   jobDetails[0][0], 8, new Point(10,  lblJobDetailsY + InputOffset), new Size(104, 16)),
-            (typeof(TextBox),       "txtQuoteDetails",  jobDetails[0][1], 8, new Point(134, lblJobDetailsY + InputOffset), new Size(104, 16)),
-            (typeof(ComboBox),      "txtQuoteOwner",    jobDetails[0][2], 8, new Point(263, lblJobDetailsY + InputOffset), new Size(104, 16)),
-            (typeof(TextBox),       "txtQuoteNumber",   jobDetails[0][3], 8, new Point(385, lblJobDetailsY + InputOffset), new Size(104, 16)),
-            (typeof(NumericUpDown), "txtQuoteValue",    jobDetails[0][4], 8, new Point(633, lblJobDetailsY + InputOffset), new Size(104, 16))
+            (typeof(TextBox),       "txtSalesPerson",   jobDetails[0][0], 8, new Point(10,  yPos), new Size(104, 16)),
+            (typeof(TextBox),       "txtQuoteDetails",  jobDetails[0][1], 8, new Point(134, yPos), new Size(104, 16)),
+            (typeof(ComboBox),      "txtQuoteOwner",    jobDetails[0][2], 8, new Point(263, yPos), new Size(104, 16)),
+            (typeof(TextBox),       "txtQuoteNumber",   jobDetails[0][3], 8, new Point(385, yPos), new Size(104, 16)),
+            (typeof(NumericUpDown), "txtQuoteValue",    jobDetails[0][4], 8, new Point(633, yPos), new Size(104, 16))
         };
 
                 foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
@@ -445,18 +449,20 @@ namespace Homesmart_Job_Management_v2
                "FROM AdditionalJobInfo " +
                "WHERE JobID = @JobID;";
 
+            int yPos = lblPaintDetailsY + InputOffset;
+
             var controlsInfo = new List<(Type, string, int, Point, Size)>
     {
-        (typeof(TextBox),       "txtPaintColour",   8, new Point(134, lblPaintDetailsY + InputOffset), new Size(104, 16)),
-        (typeof(TextBox),       "txtSurface",       8, new Point(263, lblPaintDetailsY + InputOffset), new Size(104, 16)),
-        (typeof(TextBox),       "txtArea",          8, new Point(387, lblPaintDetailsY + InputOffset), new Size(104, 16)),
-        (typeof(ComboBox),      "txtSupplier",      8, new Point(509, lblPaintDetailsY + InputOffset), new Size(104, 16)),
-        (typeof(NumericUpDown), "txtValue",         8, new Point(633, lblPaintDetailsY + InputOffset), new Size(104, 16)),
+        (typeof(TextBox),       "txtPaintColour",   8, new Point(134, yPos), new Size(104, 16)),
+        (typeof(TextBox),       "txtSurface",       8, new Point(263, yPos), new Size(104, 16)),
+        (typeof(TextBox),       "txtArea",          8, new Point(387, yPos), new Size(104, 16)),
+        (typeof(ComboBox),      "txtSupplier",      8, new Point(509, yPos), new Size(104, 16)),
+        (typeof(NumericUpDown), "txtValue",         8, new Point(633, yPos), new Size(104, 16)),
     };
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                AddInputs(query, controlsInfo, tabPage, lblPaintDetailsY, paintOffsets);
+                AddInputs(query, controlsInfo, tabPage, yPos, paintOffsets);
 
                 paintOffsets[tabPage] += DropDownHeight;
                 internalOffsets[tabPage] += DropDownHeight;
@@ -472,23 +478,19 @@ namespace Homesmart_Job_Management_v2
                "FROM InterCompanyCharge " +
                "WHERE JobID = @JobID;";
 
+            int yPos = lblInternalChargesY + InputOffset;
+
             var controlsInfo = new List<(Type, string, int, Point, Size)>
     {
-        (typeof(ComboBox),      "txtInternalSupplier",  8, new Point(10,  lblInternalChargesY + InputOffset), new Size(140, 20)),
-        (typeof(ComboBox),      "txtInternalCompany",   8, new Point(168, lblInternalChargesY + InputOffset), new Size(140, 20)),
-        (typeof(TextBox),       "txtType",              8, new Point(326, lblInternalChargesY + InputOffset), new Size(140, 20)),
-        (typeof(NumericUpDown), "txtValue",             8, new Point(633, lblInternalChargesY + InputOffset), new Size(100, 20)),
+        (typeof(ComboBox),      "txtInternalSupplier",  8, new Point(10,  yPos), new Size(140, 20)),
+        (typeof(ComboBox),      "txtInternalCompany",   8, new Point(168, yPos), new Size(140, 20)),
+        (typeof(TextBox),       "txtType",              8, new Point(326, yPos), new Size(140, 20)),
+        (typeof(NumericUpDown), "txtValue",             8, new Point(633, yPos), new Size(100, 20)),
     };
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                // Initialize the offset for this tab if it hasn't been set yet
-                if (!internalOffsets.ContainsKey(tabPage))
-                {
-                    internalOffsets[tabPage] = 40; // Increase the initial offset
-                }
-
-                AddInputs(query, controlsInfo, tabPage, lblInternalChargesY, internalOffsets);
+                AddInputs(query, controlsInfo, tabPage, yPos, internalOffsets);
 
                 internalOffsets[tabPage] += DropDownHeight;
                 quoteOffsets[tabPage] += DropDownHeight;
@@ -503,23 +505,19 @@ namespace Homesmart_Job_Management_v2
                "FROM Quotes " +
                "WHERE JobID = @JobID;";
 
+            int yPos = lblQuotesY + InputOffset;
+
             var controlsInfo = new List<(Type, string, int, Point, Size)>
     {
-        (typeof(ComboBox),      "txtQuoteSupplier",  8, new Point(10,  lblQuotesY + InputOffset), new Size(140, 20)),
-        (typeof(ComboBox),      "txtQuoteDate",      8, new Point(168, lblQuotesY + InputOffset), new Size(140, 20)),
-        (typeof(TextBox),       "txtQuoteReference", 8, new Point(326, lblQuotesY + InputOffset), new Size(140, 20)),
-        (typeof(NumericUpDown), "txtQuoteValue",     8, new Point(633, lblQuotesY + InputOffset), new Size(100, 20)),
+        (typeof(ComboBox),      "txtQuoteSupplier",  8, new Point(10,  yPos), new Size(140, 20)),
+        (typeof(ComboBox),      "txtQuoteDate",      8, new Point(168, yPos), new Size(140, 20)),
+        (typeof(TextBox),       "txtQuoteReference", 8, new Point(326, yPos), new Size(140, 20)),
+        (typeof(NumericUpDown), "txtQuoteValue",     8, new Point(633, yPos), new Size(100, 20)),
     };
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                // Initialize the offset for this tab if it hasn't been set yet
-                if (!quoteOffsets.ContainsKey(tabPage))
-                {
-                    quoteOffsets[tabPage] = 70; // Increase the initial offset
-                }
-
-                AddInputs(query, controlsInfo, tabPage, lblQuotesY, quoteOffsets);
+                AddInputs(query, controlsInfo, tabPage, yPos, quoteOffsets);
 
                 quoteOffsets[tabPage] += DropDownHeight;
                 invoiceOffsets[tabPage] += DropDownHeight;
@@ -533,23 +531,19 @@ namespace Homesmart_Job_Management_v2
                "FROM Invoices " +
                "WHERE JobID = @JobID;";
 
+            int yPos = lblInvoicesY + InputOffset;
+
             var controlsInfo = new List<(Type, string, int, Point, Size)>
     {
-        (typeof(ComboBox),      "txtInvoiceSupplier",  8, new Point(10,  lblInvoicesY + InputOffset), new Size(140, 20)),
-        (typeof(ComboBox),      "txtInvoiceDate",      8, new Point(168, lblInvoicesY + InputOffset), new Size(140, 20)),
-        (typeof(TextBox),       "txtInvoiceReference", 8, new Point(326, lblInvoicesY + InputOffset), new Size(140, 20)),
-        (typeof(NumericUpDown), "txtInvoiceValue",     8, new Point(633, lblInvoicesY + InputOffset), new Size(100, 20)),
+        (typeof(ComboBox),      "txtInvoiceSupplier",  8, new Point(10,  yPos), new Size(140, 20)),
+        (typeof(ComboBox),      "txtInvoiceDate",      8, new Point(168, yPos), new Size(140, 20)),
+        (typeof(TextBox),       "txtInvoiceReference", 8, new Point(326, yPos), new Size(140, 20)),
+        (typeof(NumericUpDown), "txtInvoiceValue",     8, new Point(633, yPos), new Size(100, 20)),
     };
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                // Initialize the offset for this tab if it hasn't been set yet
-                if (!invoiceOffsets.ContainsKey(tabPage))
-                {
-                    invoiceOffsets[tabPage] = 100; // Increase the initial offset
-                }
-
-                AddInputs(query, controlsInfo, tabPage, lblInvoicesY, invoiceOffsets);
+                AddInputs(query, controlsInfo, tabPage, yPos, invoiceOffsets);
 
                 invoiceOffsets[tabPage] += DropDownHeight;
             }
