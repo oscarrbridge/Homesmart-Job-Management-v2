@@ -9,9 +9,9 @@ namespace Homesmart_Job_Management_v2
 {
     public partial class Edit : Form
     {
-        int DropDownHeight = 30; // Assuming each control has a height of 20
+        int DropDownHeight = 30; // How much should each item drop
 
-        int InputOffset = 20;
+        int InputOffset = 20; // How low below title
 
         private Dictionary<TabPage, int> paintOffsets = new Dictionary<TabPage, int>();
         private Dictionary<TabPage, int> internalOffsets = new Dictionary<TabPage, int>();
@@ -38,15 +38,43 @@ namespace Homesmart_Job_Management_v2
             string query = "SELECT COUNT(JobID) AS 'Number of Jobs' " +
                            "FROM Job " +
                            "WHERE CustomerID = @CustomerID;";
-
-
+            
+            
             int jobs = CountNumJobs(query);
-
-
+            
+            
             PopulateCustomerDetails();
-
+            
             CreateJobPages(jobs);
 
+        }
+
+        void InitializeOffsets()
+        {
+            foreach (TabPage tabPage in tabControl1.TabPages)
+            {
+                // Initialize the offset for this tab if it hasn't been set yet
+                if (!paintOffsets.ContainsKey(tabPage))
+                {
+                    //paintOffsets[tabPage] = 5;
+                    paintOffsets[tabPage] = 0;
+                }
+                if (!internalOffsets.ContainsKey(tabPage))
+                {
+                    //internalOffsets[tabPage] = 40;
+                    internalOffsets[tabPage] = 0;
+                }
+                if (!quoteOffsets.ContainsKey(tabPage))
+                {
+                    //quoteOffsets[tabPage] = 70;
+                    quoteOffsets[tabPage] = 0;
+                }
+                if (!invoiceOffsets.ContainsKey(tabPage))
+                {
+                    //invoiceOffsets[tabPage] = 100;
+                    invoiceOffsets[tabPage] = 0;
+                }
+            }
         }
 
         //Create a new job tab
@@ -63,20 +91,14 @@ namespace Homesmart_Job_Management_v2
                 CreateTab();
             }
 
-            AddJobDetailTitles();
             PopulatePages();
         }
 
         private void PopulatePages()
         {
             AddJobDetailTitles();
-            //AddPaintDetailTitles();
-            //AddInternalChargeTitles();
-            //AddQuoteTitles();
-            //AddInvoiceTitles();
 
             InitializeOffsets();
-
 
             AddJobDetailInputs();
             AddPaintDetailInputs();
@@ -276,51 +298,6 @@ namespace Homesmart_Job_Management_v2
 
 
         //Query SQL server
-        private List<string> GetDetails(string jobID, string query)
-        {
-            List<string> jobDetails = new List<string>();
-
-            DatabaseConnection dbConnection = new DatabaseConnection();
-            if (dbConnection.OpenConnection() == true)
-            {
-                MySqlCommand cmd = new MySqlCommand(query, dbConnection.GetConnection());
-                cmd.Parameters.AddWithValue("@JobID", jobID);
-                cmd.Parameters.AddWithValue("@CustomerID", jobID);
-
-                MySqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
-                {
-                    for (int i = 0; i < reader.FieldCount; i++)
-                    {
-                        if (!reader.IsDBNull(i))
-                        {
-                            jobDetails.Add(reader.GetString(i));
-                        }
-                        else
-                        {
-                            jobDetails.Add("");
-                        }
-                    }
-
-                }
-                reader.Close();
-            }
-            else
-            {
-                DialogResult result = MessageBox.Show("Server not found. Contact Admin", "Error", MessageBoxButtons.RetryCancel);
-                if (result == DialogResult.Retry)
-                {
-                    return GetDetails(jobID, query);
-                }
-                else
-                {
-                    Close();
-                }
-            }
-
-            return jobDetails;
-        }
-
         private List<List<string>> GetAllDetails(string jobID, string query)
         {
             List<List<string>> allJobDetails = new List<List<string>>();
@@ -330,6 +307,7 @@ namespace Homesmart_Job_Management_v2
             {
                 MySqlCommand cmd = new MySqlCommand(query, dbConnection.GetConnection());
                 cmd.Parameters.AddWithValue("@JobID", jobID);
+                cmd.Parameters.AddWithValue("@CustomerID", lblCustomerID.Value);
 
                 MySqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -371,12 +349,11 @@ namespace Homesmart_Job_Management_v2
         {
             foreach (Control control in controls)
             {
-                if (control.Location.Y >= startingY)
+                if (control.Location.Y > startingY)
                 {
                     control.Location = new Point(control.Location.X, control.Location.Y + offset);
                 }
             }
-
         }
 
 
@@ -393,14 +370,11 @@ namespace Homesmart_Job_Management_v2
 
             List<List<string>> allDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
 
+            MoveControlsDown(tabPage.Controls, controlsY + offsets[tabPage], DropDownHeight);
             foreach (List<string> details in allDetails)
             {
                 if (details.Count >= controlsInfo.Count)
                 {
-                    // Move all controls below the new Y-position down
-                    MoveControlsDown(tabPage.Controls, controlsY + offsets[tabPage], DropDownHeight);
-
-                    Control lastControl = null;
                     for (int i = 0; i < controlsInfo.Count; i++)
                     {
                         var (controlType, name, fontSize, position, size) = controlsInfo[i];
@@ -414,38 +388,15 @@ namespace Homesmart_Job_Management_v2
                         newControl.Size = size;
 
                         tabPage.Controls.Add(newControl);
-                        lastControl = newControl;
                     }
-                    offsets[tabPage] += DropDownHeight;
+                    // Move all controls below the new Y-position down
+
                 }
             }
         }
 
 
 
-        void InitializeOffsets()
-        {
-            foreach (TabPage tabPage in tabControl1.TabPages)
-            {
-                // Initialize the offset for this tab if it hasn't been set yet
-                if (!paintOffsets.ContainsKey(tabPage))
-                {
-                    paintOffsets[tabPage] = 5;
-                }
-                if (!internalOffsets.ContainsKey(tabPage))
-                {
-                    internalOffsets[tabPage] = 40;
-                }
-                if (!quoteOffsets.ContainsKey(tabPage))
-                {
-                    quoteOffsets[tabPage] = 70;
-                }
-                if (!invoiceOffsets.ContainsKey(tabPage))
-                {
-                    invoiceOffsets[tabPage] = 100;
-                }
-            }
-        }
 
 
 
@@ -460,16 +411,16 @@ namespace Homesmart_Job_Management_v2
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                List<string> jobDetails = GetDetails(tabPage.Controls["lblJobID"].Text, query);
+                List<List<string>> jobDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
 
                 var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-                {
-                    (typeof(TextBox),       "txtSalesPerson",   jobDetails[0], 8, new Point(10,  (lblJobDetailsY + InputOffset)), new Size(104, 16)),
-                    (typeof(TextBox),       "txtQuoteDetails",  jobDetails[1], 8, new Point(134, (lblJobDetailsY + InputOffset)), new Size(104, 16)),
-                    (typeof(ComboBox),      "txtQuoteOwner",    jobDetails[2], 8, new Point(263, (lblJobDetailsY + InputOffset)), new Size(104, 16)),
-                    (typeof(TextBox),       "txtQuoteNumber",   jobDetails[3], 8, new Point(385, (lblJobDetailsY + InputOffset)), new Size(104, 16)),
-                    (typeof(NumericUpDown), "txtQuoteValue",    jobDetails[4], 8, new Point(633, (lblJobDetailsY + InputOffset)), new Size(104, 16))
-                };
+        {
+            (typeof(TextBox),       "txtSalesPerson",   jobDetails[0][0], 8, new Point(10,  lblJobDetailsY + InputOffset), new Size(104, 16)),
+            (typeof(TextBox),       "txtQuoteDetails",  jobDetails[0][1], 8, new Point(134, lblJobDetailsY + InputOffset), new Size(104, 16)),
+            (typeof(ComboBox),      "txtQuoteOwner",    jobDetails[0][2], 8, new Point(263, lblJobDetailsY + InputOffset), new Size(104, 16)),
+            (typeof(TextBox),       "txtQuoteNumber",   jobDetails[0][3], 8, new Point(385, lblJobDetailsY + InputOffset), new Size(104, 16)),
+            (typeof(NumericUpDown), "txtQuoteValue",    jobDetails[0][4], 8, new Point(633, lblJobDetailsY + InputOffset), new Size(104, 16))
+        };
 
                 foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
                 {
@@ -487,7 +438,6 @@ namespace Homesmart_Job_Management_v2
             }
         }
 
-
         //Create paint detail elements
         private void AddPaintDetailInputs()
         {
@@ -497,11 +447,11 @@ namespace Homesmart_Job_Management_v2
 
             var controlsInfo = new List<(Type, string, int, Point, Size)>
     {
-        (typeof(TextBox),       "txtPaintColour",   8, new Point(134, (lblPaintDetailsY + InputOffset)), new Size(104, 16)),
-        (typeof(TextBox),       "txtSurface",       8, new Point(263, (lblPaintDetailsY + InputOffset)), new Size(104, 16)),
-        (typeof(TextBox),       "txtArea",          8, new Point(387, (lblPaintDetailsY + InputOffset)), new Size(104, 16)),
-        (typeof(ComboBox),      "txtSupplier",      8, new Point(509, (lblPaintDetailsY + InputOffset)), new Size(104, 16)),
-        (typeof(NumericUpDown), "txtValue",         8, new Point(633, (lblPaintDetailsY + InputOffset)), new Size(104, 16)),
+        (typeof(TextBox),       "txtPaintColour",   8, new Point(134, lblPaintDetailsY + InputOffset), new Size(104, 16)),
+        (typeof(TextBox),       "txtSurface",       8, new Point(263, lblPaintDetailsY + InputOffset), new Size(104, 16)),
+        (typeof(TextBox),       "txtArea",          8, new Point(387, lblPaintDetailsY + InputOffset), new Size(104, 16)),
+        (typeof(ComboBox),      "txtSupplier",      8, new Point(509, lblPaintDetailsY + InputOffset), new Size(104, 16)),
+        (typeof(NumericUpDown), "txtValue",         8, new Point(633, lblPaintDetailsY + InputOffset), new Size(104, 16)),
     };
 
             foreach (TabPage tabPage in tabControl1.TabPages)
@@ -515,10 +465,6 @@ namespace Homesmart_Job_Management_v2
             }
         }
 
-
-
-
-
         //Create internal charges elements
         private void AddInternalChargeInputs()
         {
@@ -528,10 +474,10 @@ namespace Homesmart_Job_Management_v2
 
             var controlsInfo = new List<(Type, string, int, Point, Size)>
     {
-        (typeof(ComboBox),      "txtInternalSupplier",  8, new Point(10,  (lblInternalChargesY + InputOffset)), new Size(140, 20)),
-        (typeof(ComboBox),      "txtInternalCompany",   8, new Point(168, (lblInternalChargesY + InputOffset)), new Size(140, 20)),
-        (typeof(TextBox),       "txtType",              8, new Point(326, (lblInternalChargesY + InputOffset)), new Size(140, 20)),
-        (typeof(NumericUpDown), "txtValue",             8, new Point(633, (lblInternalChargesY + InputOffset)), new Size(100, 20)),
+        (typeof(ComboBox),      "txtInternalSupplier",  8, new Point(10,  lblInternalChargesY + InputOffset), new Size(140, 20)),
+        (typeof(ComboBox),      "txtInternalCompany",   8, new Point(168, lblInternalChargesY + InputOffset), new Size(140, 20)),
+        (typeof(TextBox),       "txtType",              8, new Point(326, lblInternalChargesY + InputOffset), new Size(140, 20)),
+        (typeof(NumericUpDown), "txtValue",             8, new Point(633, lblInternalChargesY + InputOffset), new Size(100, 20)),
     };
 
             foreach (TabPage tabPage in tabControl1.TabPages)
@@ -550,8 +496,6 @@ namespace Homesmart_Job_Management_v2
             }
         }
 
-
-
         //Create quote elements
         private void AddQuoteInputs()
         {
@@ -561,10 +505,10 @@ namespace Homesmart_Job_Management_v2
 
             var controlsInfo = new List<(Type, string, int, Point, Size)>
     {
-        (typeof(ComboBox),      "txtQuoteSupplier",  8, new Point(10,  (lblQuotesY + InputOffset)), new Size(140, 20)),
-        (typeof(ComboBox),      "txtQuoteDate",      8, new Point(168, (lblQuotesY + InputOffset)), new Size(140, 20)),
-        (typeof(TextBox),       "txtQuoteReference", 8, new Point(326, (lblQuotesY + InputOffset)), new Size(140, 20)),
-        (typeof(NumericUpDown), "txtQuoteValue",     8, new Point(633, (lblQuotesY + InputOffset)), new Size(100, 20)),
+        (typeof(ComboBox),      "txtQuoteSupplier",  8, new Point(10,  lblQuotesY + InputOffset), new Size(140, 20)),
+        (typeof(ComboBox),      "txtQuoteDate",      8, new Point(168, lblQuotesY + InputOffset), new Size(140, 20)),
+        (typeof(TextBox),       "txtQuoteReference", 8, new Point(326, lblQuotesY + InputOffset), new Size(140, 20)),
+        (typeof(NumericUpDown), "txtQuoteValue",     8, new Point(633, lblQuotesY + InputOffset), new Size(100, 20)),
     };
 
             foreach (TabPage tabPage in tabControl1.TabPages)
@@ -582,8 +526,6 @@ namespace Homesmart_Job_Management_v2
             }
         }
 
-
-
         //Create invoice elements
         private void AddInvoiceInputs()
         {
@@ -593,10 +535,10 @@ namespace Homesmart_Job_Management_v2
 
             var controlsInfo = new List<(Type, string, int, Point, Size)>
     {
-        (typeof(ComboBox),      "txtInvoiceSupplier",  8, new Point(10,  (lblInvoicesY + InputOffset)), new Size(140, 20)),
-        (typeof(ComboBox),      "txtInvoiceDate",      8, new Point(168, (lblInvoicesY + InputOffset)), new Size(140, 20)),
-        (typeof(TextBox),       "txtInvoiceReference", 8, new Point(326, (lblInvoicesY + InputOffset)), new Size(140, 20)),
-        (typeof(NumericUpDown), "txtInvoiceValue",     8, new Point(633, (lblInvoicesY + InputOffset)), new Size(100, 20)),
+        (typeof(ComboBox),      "txtInvoiceSupplier",  8, new Point(10,  lblInvoicesY + InputOffset), new Size(140, 20)),
+        (typeof(ComboBox),      "txtInvoiceDate",      8, new Point(168, lblInvoicesY + InputOffset), new Size(140, 20)),
+        (typeof(TextBox),       "txtInvoiceReference", 8, new Point(326, lblInvoicesY + InputOffset), new Size(140, 20)),
+        (typeof(NumericUpDown), "txtInvoiceValue",     8, new Point(633, lblInvoicesY + InputOffset), new Size(100, 20)),
     };
 
             foreach (TabPage tabPage in tabControl1.TabPages)
@@ -623,12 +565,13 @@ namespace Homesmart_Job_Management_v2
                "FROM CustomerInfo " +
                "WHERE CustomerID = @CustomerID;";
 
-            List<string> customerDetails = GetDetails(this.Controls["lblCustomerID"].Text, query);
+            List<List<string>> customerDetails = GetAllDetails(this.Controls["lblCustomerID"].Text, query);
 
-            this.Controls["txtCustomerName"].Text = customerDetails[0];
-            this.Controls["txtCustomerAddress"].Text = customerDetails[1];
-            this.Controls["txtCustomerEmail"].Text = customerDetails[2];
+            this.Controls["txtCustomerName"].Text = customerDetails[0][0];
+            this.Controls["txtCustomerAddress"].Text = customerDetails[0][1];
+            this.Controls["txtCustomerEmail"].Text = customerDetails[0][2];
         }
+
 
     }
 }
