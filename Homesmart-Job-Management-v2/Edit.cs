@@ -481,9 +481,6 @@ namespace Homesmart_Job_Management_v2
         }
 
 
-
-
-
         //Create internal charges elements
         private void AddInternalChargeInputs()
         {
@@ -551,6 +548,8 @@ namespace Homesmart_Job_Management_v2
         
             InvoiceOffset += DropDownHeight;
         }
+
+
 
 
         private void PopulateCustomerDetails()
