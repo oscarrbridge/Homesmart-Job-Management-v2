@@ -358,7 +358,7 @@ namespace Homesmart_Job_Management_v2
 
 
 
-        private void AddInputs(string query, List<(Type, string, int, Point, Size)> controlsInfo, TabPage tabPage, int controlsY, Dictionary<TabPage, int> offsets)
+        private void AddInputs(string query, List<(Type, string, int, Point, Size)> controlsInfo, TabPage tabPage, int controlsY, Dictionary<TabPage, int> offsets, string passType)
         {
             //tabPage = tabControl1.SelectedTab;
 
@@ -370,14 +370,11 @@ namespace Homesmart_Job_Management_v2
 
             List<List<string>> allDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
 
-            // Move all controls below the new Y-position down
-                    MoveControlsDown(tabPage.Controls, controlsY + offsets[tabPage], DropDownHeight);
 
             foreach (List<string> details in allDetails)
             {
                 if (details.Count >= controlsInfo.Count)
-                {
-
+                {   
                     for (int i = 0; i < controlsInfo.Count; i++)
                     {
                         var (controlType, name, fontSize, position, size) = controlsInfo[i];
@@ -392,7 +389,31 @@ namespace Homesmart_Job_Management_v2
 
                         tabPage.Controls.Add(newControl);
                     }
-                    offsets[tabPage] += DropDownHeight;
+                }
+                // Move all controls below the new Y-position down
+                MoveControlsDown(tabPage.Controls, controlsY + offsets[tabPage], DropDownHeight);
+                
+                if(passType == "paint")
+                {
+                    paintOffsets[tabPage] += DropDownHeight;
+                    internalOffsets[tabPage] += DropDownHeight;
+                    quoteOffsets[tabPage] += DropDownHeight;
+                    invoiceOffsets[tabPage] += DropDownHeight;
+                }
+                else if (passType == "internal")
+                {
+                    internalOffsets[tabPage] += DropDownHeight;
+                    quoteOffsets[tabPage] += DropDownHeight;
+                    invoiceOffsets[tabPage] += DropDownHeight;
+                }
+                else if (passType == "quote")
+                {
+                    quoteOffsets[tabPage] += DropDownHeight;
+                    invoiceOffsets[tabPage] += DropDownHeight;
+                }
+                else if (passType == "invoice")
+                {
+                    invoiceOffsets[tabPage] += DropDownHeight;
                 }
             }
         }
@@ -462,12 +483,7 @@ namespace Homesmart_Job_Management_v2
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                AddInputs(query, controlsInfo, tabPage, yPos, paintOffsets);
-
-                paintOffsets[tabPage] += DropDownHeight;
-                internalOffsets[tabPage] += DropDownHeight;
-                quoteOffsets[tabPage] += DropDownHeight;
-                invoiceOffsets[tabPage] += DropDownHeight;
+                AddInputs(query, controlsInfo, tabPage, yPos, paintOffsets, "paint");
             }
         }
 
@@ -490,11 +506,7 @@ namespace Homesmart_Job_Management_v2
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                AddInputs(query, controlsInfo, tabPage, yPos, internalOffsets);
-
-                internalOffsets[tabPage] += DropDownHeight;
-                quoteOffsets[tabPage] += DropDownHeight;
-                invoiceOffsets[tabPage] += DropDownHeight;
+                AddInputs(query, controlsInfo, tabPage, yPos, internalOffsets, "internal");
             }
         }
 
@@ -517,10 +529,7 @@ namespace Homesmart_Job_Management_v2
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                AddInputs(query, controlsInfo, tabPage, yPos, quoteOffsets);
-
-                quoteOffsets[tabPage] += DropDownHeight;
-                invoiceOffsets[tabPage] += DropDownHeight;
+                AddInputs(query, controlsInfo, tabPage, yPos, quoteOffsets, "quote");
             }
         }
 
@@ -543,9 +552,7 @@ namespace Homesmart_Job_Management_v2
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                AddInputs(query, controlsInfo, tabPage, yPos, invoiceOffsets);
-
-                invoiceOffsets[tabPage] += DropDownHeight;
+                AddInputs(query, controlsInfo, tabPage, yPos, invoiceOffsets, "invoice");
             }
         }
 
