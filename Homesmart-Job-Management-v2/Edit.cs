@@ -80,7 +80,12 @@ namespace Homesmart_Job_Management_v2
         //Create a new job tab
         private void CreateTab()
         {
-            tabControl1.TabPages.Add($"Job {tabControl1.TabPages.Count + 1}");
+            TabPage newTab = new TabPage($"Job {tabControl1.TabPages.Count + 1}");
+            Panel panel = new Panel();
+            panel.Dock = DockStyle.Fill;
+            panel.Name = $"Panel {tabControl1.TabPages.Count + 1}";
+            newTab.Controls.Add(panel);
+            tabControl1.TabPages.Add(newTab);
         }
 
         //Loop number of jobs for the customer
@@ -218,10 +223,7 @@ namespace Homesmart_Job_Management_v2
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-
-                Panel panel = new Panel();
-                panel.Dock = DockStyle.Fill;
-                panel.Name = "panel" + tabIndex;
+                Panel panel = (Panel)tabPage.Controls.Find($"Panel {tabControl1.TabPages.Count + 1}", true)[0];
 
                 var controlsInfo = new List<(Type, string, string, int, Point, Size)>
                 {
@@ -285,11 +287,7 @@ namespace Homesmart_Job_Management_v2
                         dateTimePicker.CustomFormat = "dd/MM/yy";
                     }
 
-
-
-                    //tabPage.Controls.Add(panel);
-
-                    tabPage.Controls.Add(newControl);
+                    panel.Controls.Add(newControl);
                 }
 
                 tabIndex++; // Move to the next JobID for the next tab
@@ -360,21 +358,20 @@ namespace Homesmart_Job_Management_v2
 
         private void AddInputs(string query, List<(Type, string, int, Point, Size)> controlsInfo, TabPage tabPage, int controlsY, Dictionary<TabPage, int> offsets, string passType)
         {
-            //tabPage = tabControl1.SelectedTab;
-
             // Initialize the offset for this tab if it hasn't been set yet
             if (!offsets.ContainsKey(tabPage))
             {
                 offsets[tabPage] = 0;
             }
 
-            List<List<string>> allDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
+            Panel panel = (Panel)tabPage.Controls.Find($"Panel {tabControl1.TabPages.Count + 1}", true)[0];
 
+            List<List<string>> allDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
 
             foreach (List<string> details in allDetails)
             {
                 if (details.Count >= controlsInfo.Count)
-                {   
+                {
                     for (int i = 0; i < controlsInfo.Count; i++)
                     {
                         var (controlType, name, fontSize, position, size) = controlsInfo[i];
@@ -387,13 +384,13 @@ namespace Homesmart_Job_Management_v2
                         newControl.Location = new Point(position.X, position.Y + offsets[tabPage]); // Update the Y position based on the offset
                         newControl.Size = size;
 
-                        tabPage.Controls.Add(newControl);
+                        panel.Controls.Add(newControl);
                     }
                 }
                 // Move all controls below the new Y-position down
-                MoveControlsDown(tabPage.Controls, controlsY + offsets[tabPage], DropDownHeight);
-                
-                if(passType == "paint")
+                MoveControlsDown(panel.Controls, controlsY + offsets[tabPage], DropDownHeight);
+
+                if (passType == "paint")
                 {
                     paintOffsets[tabPage] += DropDownHeight;
                     internalOffsets[tabPage] += DropDownHeight;
