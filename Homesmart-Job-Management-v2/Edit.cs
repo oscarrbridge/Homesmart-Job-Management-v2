@@ -83,10 +83,11 @@ namespace Homesmart_Job_Management_v2
             TabPage newTab = new TabPage($"Job {tabControl1.TabPages.Count + 1}");
             Panel panel = new Panel();
             panel.Dock = DockStyle.Fill;
-            panel.Name = $"Panel {tabControl1.TabPages.Count + 1}";
+            panel.Name = "Panel " + (tabControl1.TabPages.Count + 1);
             newTab.Controls.Add(panel);
             tabControl1.TabPages.Add(newTab);
         }
+
 
         //Loop number of jobs for the customer
         private void CreateJobPages(int jobs)
@@ -223,7 +224,7 @@ namespace Homesmart_Job_Management_v2
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                Panel panel = (Panel)tabPage.Controls.Find($"Panel {tabControl1.TabPages.Count + 1}", true)[0];
+                Panel panel = (Panel)tabPage.Controls.Find($"Panel {tabIndex + 1}", true)[0];
 
                 var controlsInfo = new List<(Type, string, string, int, Point, Size)>
                 {
