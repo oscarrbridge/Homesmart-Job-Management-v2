@@ -84,6 +84,7 @@ namespace Homesmart_Job_Management_v2
             Panel panel = new Panel();
             panel.Dock = DockStyle.Fill;
             panel.Name = "Panel " + (tabControl1.TabPages.Count + 1);
+            panel.AutoScroll = true;
             newTab.Controls.Add(panel);
             tabControl1.TabPages.Add(newTab);
         }
@@ -365,9 +366,10 @@ namespace Homesmart_Job_Management_v2
                 offsets[tabPage] = 0;
             }
 
-            Panel panel = (Panel)tabPage.Controls.Find($"Panel {tabControl1.TabPages.Count + 1}", true)[0];
+            // Find the panel in the tabPage
+            Panel panel = (Panel)tabPage.Controls.Find($"Panel {tabPage.TabIndex + 1}", true)[0];
 
-            List<List<string>> allDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
+            List<List<string>> allDetails = GetAllDetails(panel.Controls["lblJobID"].Text, query);
 
             foreach (List<string> details in allDetails)
             {
@@ -414,7 +416,12 @@ namespace Homesmart_Job_Management_v2
                     invoiceOffsets[tabPage] += DropDownHeight;
                 }
             }
+
+            // Extend the height of the panel by 20 each time the function is called
+            panel.Height += 20;
         }
+
+
 
 
 
@@ -434,7 +441,9 @@ namespace Homesmart_Job_Management_v2
 
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
-                List<List<string>> jobDetails = GetAllDetails(tabPage.Controls["lblJobID"].Text, query);
+                Panel panel = (Panel)tabPage.Controls.Find($"Panel {tabIndex + 1}", true)[0];
+
+                List<List<string>> jobDetails = GetAllDetails(panel.Controls["lblJobID"].Text, query);
 
                 var controlsInfo = new List<(Type, string, string, int, Point, Size)>
         {
