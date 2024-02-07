@@ -137,7 +137,7 @@
             this.tabControl1.Location = new System.Drawing.Point(12, 165);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(760, 634);
+            this.tabControl1.Size = new System.Drawing.Size(810, 634);
             this.tabControl1.TabIndex = 7;
             // 
             // Edit
@@ -145,7 +145,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(784, 811);
+            this.ClientSize = new System.Drawing.Size(834, 811);
             this.Controls.Add(this.lblCustomerID);
             this.Controls.Add(this.btnAddTab);
             this.Controls.Add(this.lblCustomerEmail);

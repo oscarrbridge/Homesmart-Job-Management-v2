@@ -38,13 +38,13 @@ namespace Homesmart_Job_Management_v2
             string query = "SELECT COUNT(JobID) AS 'Number of Jobs' " +
                            "FROM Job " +
                            "WHERE CustomerID = @CustomerID;";
-            
-            
+
+
             int jobs = CountNumJobs(query);
-            
-            
+
+
             PopulateCustomerDetails();
-            
+
             CreateJobPages(jobs);
 
         }
@@ -108,10 +108,10 @@ namespace Homesmart_Job_Management_v2
             InitializeOffsets();
 
             AddJobDetailInputs();
-            AddPaintDetailInputs();
-            AddInternalChargeInputs();
-            AddQuoteInputs();
-            AddInvoiceInputs();
+            AddPaintDetailInputs("init");
+            AddInternalChargeInputs("init");
+            AddQuoteInputs("init");
+            AddInvoiceInputs("init");
         }
 
         //Count number of jobs for the customer
@@ -209,12 +209,25 @@ namespace Homesmart_Job_Management_v2
 
         private void Button_Click(object sender, EventArgs e)
         {
-            // Get the parent control (e.g., a Panel or Form) that contains the controls you want to move
-            Control parentControl = ((Control)sender).Parent;
-
-            // Call MoveControlsDown with the parent control's Controls collection
-            MoveControlsDown(parentControl.Controls, 106, 20);
+            Button clickedButton = sender as Button;
+            if (clickedButton != null && clickedButton.Name == "btnAddDetail")
+            {
+                AddPaintDetailInputs("btn");
+            }
+            else if (clickedButton != null && clickedButton.Name == "btnAddCharge")
+            {
+                AddInternalChargeInputs("btn");
+            }
+            else if (clickedButton != null && clickedButton.Name == "btnAddQuote")
+            {
+                AddQuoteInputs("btn");
+            }
+            else if (clickedButton != null && clickedButton.Name == "btnAddInvoice")
+            {
+                AddInvoiceInputs("btn");
+            }
         }
+
 
         //Create job detail elements
         private void AddJobDetailTitles()
@@ -369,7 +382,16 @@ namespace Homesmart_Job_Management_v2
             // Find the panel in the tabPage
             Panel panel = (Panel)tabPage.Controls.Find($"Panel {tabPage.TabIndex + 1}", true)[0];
 
-            List<List<string>> allDetails = GetAllDetails(panel.Controls["lblJobID"].Text, query);
+            List<List<string>> allDetails = new List<List<string>>();
+            if (!string.IsNullOrEmpty(query))
+            {
+                allDetails = GetAllDetails(panel.Controls["lblJobID"].Text, query);
+            }
+            else
+            {
+                // Create a list of empty details when the query is empty
+                allDetails.Add(new List<string>(new string[controlsInfo.Count]));
+            }
 
             foreach (List<string> details in allDetails)
             {
@@ -384,14 +406,14 @@ namespace Homesmart_Job_Management_v2
                         newControl.Name = name;
                         newControl.Text = text;
                         newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
-                        newControl.Location = new Point(position.X, position.Y + offsets[tabPage]); // Update the Y position based on the offset
+                        newControl.Location = new Point(position.X, position.Y + offsets[tabPage] + panel.AutoScrollPosition.Y);// Update the Y position based on the offset
                         newControl.Size = size;
 
                         panel.Controls.Add(newControl);
                     }
                 }
                 // Move all controls below the new Y-position down
-                MoveControlsDown(panel.Controls, controlsY + offsets[tabPage], DropDownHeight);
+                MoveControlsDown(panel.Controls, controlsY + offsets[tabPage] + panel.AutoScrollPosition.Y, DropDownHeight);
 
                 if (passType == "paint")
                 {
@@ -420,12 +442,6 @@ namespace Homesmart_Job_Management_v2
             // Extend the height of the panel by 20 each time the function is called
             panel.Height += 20;
         }
-
-
-
-
-
-
 
 
         //Create job detail elements
@@ -470,12 +486,23 @@ namespace Homesmart_Job_Management_v2
             }
         }
 
+
+
         //Create paint detail elements
-        private void AddPaintDetailInputs()
+        private void AddPaintDetailInputs(string sender)
         {
-            string query = "SELECT PaintColour, Surface, Area, Supplier, Value " +
-               "FROM AdditionalJobInfo " +
-               "WHERE JobID = @JobID;";
+            string query;
+
+            if (sender == "init")
+            {
+                query = "SELECT PaintColour, Surface, Area, Supplier, Value " +
+                   "FROM AdditionalJobInfo " +
+                   "WHERE JobID = @JobID;";
+            }
+            else
+            {
+                query = "";
+            }
 
             int yPos = lblPaintDetailsY + InputOffset;
 
@@ -495,11 +522,20 @@ namespace Homesmart_Job_Management_v2
         }
 
         //Create internal charges elements
-        private void AddInternalChargeInputs()
+        private void AddInternalChargeInputs(string sender)
         {
-            string query = "SELECT SupplierContractorID, CompanyName, Type, Value " +
-               "FROM InterCompanyCharge " +
-               "WHERE JobID = @JobID;";
+            string query;
+
+            if (sender == "init")
+            {
+                query = "SELECT SupplierContractorID, CompanyName, Type, Value " +
+                   "FROM InterCompanyCharge " +
+                   "WHERE JobID = @JobID;";
+            }
+            else
+            {
+                query = "";
+            }
 
             int yPos = lblInternalChargesY + InputOffset;
 
@@ -518,11 +554,20 @@ namespace Homesmart_Job_Management_v2
         }
 
         //Create quote elements
-        private void AddQuoteInputs()
+        private void AddQuoteInputs(string sender)
         {
-            string query = "SELECT SupplierContractorID, QuoteDate, QuoteReference, QuoteValue " +
-               "FROM Quotes " +
-               "WHERE JobID = @JobID;";
+            string query;
+
+            if (sender == "init")
+            {
+                query = "SELECT SupplierContractorID, QuoteDate, QuoteReference, QuoteValue " +
+                   "FROM Quotes " +
+                   "WHERE JobID = @JobID;";
+            }
+            else
+            {
+                query = "";
+            }
 
             int yPos = lblQuotesY + InputOffset;
 
@@ -541,11 +586,20 @@ namespace Homesmart_Job_Management_v2
         }
 
         //Create invoice elements
-        private void AddInvoiceInputs()
+        private void AddInvoiceInputs(string sender)
         {
-            string query = "SELECT SupplierContractorID, InvoiceDate, InvoiceReference, InvoiceValue " +
-               "FROM Invoices " +
-               "WHERE JobID = @JobID;";
+            string query;
+
+            if (sender == "")
+            {
+                query = "SELECT SupplierContractorID, InvoiceDate, InvoiceReference, InvoiceValue " +
+                   "FROM Invoices " +
+                   "WHERE JobID = @JobID;";
+            }
+            else
+            {
+                query = "";
+            }
 
             int yPos = lblInvoicesY + InputOffset;
 
