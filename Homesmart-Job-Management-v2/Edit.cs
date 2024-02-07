@@ -296,11 +296,6 @@ namespace Homesmart_Job_Management_v2
                     {
                         button.Click += Button_Click;
                     }
-                    else if (newControl is DateTimePicker dateTimePicker)
-                    {
-                        dateTimePicker.Format = DateTimePickerFormat.Custom;
-                        dateTimePicker.CustomFormat = "dd/MM/yy";
-                    }
 
                     panel.Controls.Add(newControl);
                 }
@@ -409,6 +404,17 @@ namespace Homesmart_Job_Management_v2
                         newControl.Location = new Point(position.X, position.Y + offsets[tabPage] + panel.AutoScrollPosition.Y);// Update the Y position based on the offset
                         newControl.Size = size;
 
+                        // If the control is a NumericUpDown named "txtQuoteValue", set its Maximum property
+                        if (newControl is NumericUpDown)
+                        {
+                            ((NumericUpDown)newControl).Maximum = 99999999;
+                            ((NumericUpDown)newControl).DecimalPlaces = 2;
+                        }
+                        else if (newControl is DateTimePicker)
+                        {
+                            ((DateTimePicker)newControl).Format = DateTimePickerFormat.Short;
+                        }
+
                         panel.Controls.Add(newControl);
                     }
                 }
@@ -444,6 +450,7 @@ namespace Homesmart_Job_Management_v2
         }
 
 
+
         //Create job detail elements
         private void AddJobDetailInputs()
         {
@@ -462,13 +469,13 @@ namespace Homesmart_Job_Management_v2
                 List<List<string>> jobDetails = GetAllDetails(panel.Controls["lblJobID"].Text, query);
 
                 var controlsInfo = new List<(Type, string, string, int, Point, Size)>
-        {
-            (typeof(TextBox),       "txtSalesPerson",   jobDetails[0][0], 8, new Point(10,  yPos), new Size(104, 16)),
-            (typeof(TextBox),       "txtQuoteDetails",  jobDetails[0][1], 8, new Point(134, yPos), new Size(104, 16)),
-            (typeof(ComboBox),      "txtQuoteOwner",    jobDetails[0][2], 8, new Point(263, yPos), new Size(104, 16)),
-            (typeof(TextBox),       "txtQuoteNumber",   jobDetails[0][3], 8, new Point(385, yPos), new Size(104, 16)),
-            (typeof(NumericUpDown), "txtQuoteValue",    jobDetails[0][4], 8, new Point(633, yPos), new Size(104, 16))
-        };
+{
+    (typeof(TextBox),       "txtSalesPerson",   jobDetails[0][0], 8, new Point(10,  yPos), new Size(104, 16)),
+    (typeof(TextBox),       "txtQuoteDetails",  jobDetails[0][1], 8, new Point(134, yPos), new Size(104, 16)),
+    (typeof(ComboBox),      "txtQuoteOwner",    jobDetails[0][2], 8, new Point(263, yPos), new Size(104, 16)),
+    (typeof(TextBox),       "txtQuoteNumber",   jobDetails[0][3], 8, new Point(385, yPos), new Size(104, 16)),
+    (typeof(NumericUpDown), "txtQuoteValue",    jobDetails[0][4], 8, new Point(633, yPos), new Size(104, 16))
+};
 
                 foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
                 {
@@ -479,12 +486,21 @@ namespace Homesmart_Job_Management_v2
                     newControl.Location = position;
                     newControl.Size = size;
 
-                    tabPage.Controls.Add(newControl);
+                    // Set the Maximum property for NumericUpDown control
+                    if (newControl is NumericUpDown && name == "txtQuoteValue")
+                    {
+                        ((NumericUpDown)newControl).Maximum = 99999999;
+                        ((NumericUpDown)newControl).DecimalPlaces = 2;
+                    }
+
+                    panel.Controls.Add(newControl);
                 }
 
                 tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
+
 
 
 
@@ -574,7 +590,7 @@ namespace Homesmart_Job_Management_v2
             var controlsInfo = new List<(Type, string, int, Point, Size)>
     {
         (typeof(ComboBox),      "txtQuoteSupplier",  8, new Point(10,  yPos), new Size(140, 20)),
-        (typeof(ComboBox),      "txtQuoteDate",      8, new Point(168, yPos), new Size(140, 20)),
+        (typeof(DateTimePicker),      "txtQuoteDate",      8, new Point(168, yPos), new Size(140, 20)),
         (typeof(TextBox),       "txtQuoteReference", 8, new Point(326, yPos), new Size(140, 20)),
         (typeof(NumericUpDown), "txtQuoteValue",     8, new Point(633, yPos), new Size(100, 20)),
     };
@@ -606,7 +622,7 @@ namespace Homesmart_Job_Management_v2
             var controlsInfo = new List<(Type, string, int, Point, Size)>
     {
         (typeof(ComboBox),      "txtInvoiceSupplier",  8, new Point(10,  yPos), new Size(140, 20)),
-        (typeof(ComboBox),      "txtInvoiceDate",      8, new Point(168, yPos), new Size(140, 20)),
+        (typeof(DateTimePicker),      "txtInvoiceDate",      8, new Point(168, yPos), new Size(140, 20)),
         (typeof(TextBox),       "txtInvoiceReference", 8, new Point(326, yPos), new Size(140, 20)),
         (typeof(NumericUpDown), "txtInvoiceValue",     8, new Point(633, yPos), new Size(100, 20)),
     };
