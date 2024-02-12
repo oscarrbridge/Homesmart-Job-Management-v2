@@ -315,10 +315,6 @@ namespace Homesmart_Job_Management_v2
         }
 
 
-        //
-        //GET INFO AND FILL IN INPUT ELEMENTS
-        //
-
         //Query SQL server
         private List<List<string>> GetAllDetails(string jobID, string query)
         {
@@ -378,73 +374,17 @@ namespace Homesmart_Job_Management_v2
             }
         }
 
-        //Create elements
-        private void CreateAndAddControl(List<string> details, List<(Type, string, int, Point, Size)> controlsInfo, int i, Dictionary<TabPage, int> offsets, TabPage tabPage, Panel panel)
-        {
-            var (controlType, name, fontSize, position, size) = controlsInfo[i];
-            string text = details[i];
 
-            Control newControl = (Control)Activator.CreateInstance(controlType);
-            newControl.Name = name;
-            newControl.Text = text;
-            newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
-            newControl.Location = new Point(position.X, position.Y + offsets[tabPage] + panel.AutoScrollPosition.Y);
-            newControl.Size = size;
 
-            SetControlProperties(newControl);
-
-            panel.Controls.Add(newControl);
-        }
-
-        //Set properties of input elements
-        private void SetControlProperties(Control newControl)
-        {
-            if (newControl is NumericUpDown)
-            {
-                ((NumericUpDown)newControl).Maximum = 99999999;
-                ((NumericUpDown)newControl).DecimalPlaces = 2;
-            }
-            else if (newControl is DateTimePicker)
-            {
-                ((DateTimePicker)newControl).Format = DateTimePickerFormat.Short;
-            }
-        }
-
-        //Update location offsets 
-        private void UpdateOffsets(string passType, TabPage tabPage)
-        {
-            if (passType == "paint")
-            {
-                paintOffsets[tabPage] += DropDownHeight;
-                internalOffsets[tabPage] += DropDownHeight;
-                quoteOffsets[tabPage] += DropDownHeight;
-                invoiceOffsets[tabPage] += DropDownHeight;
-            }
-            else if (passType == "internal")
-            {
-                internalOffsets[tabPage] += DropDownHeight;
-                quoteOffsets[tabPage] += DropDownHeight;
-                invoiceOffsets[tabPage] += DropDownHeight;
-            }
-            else if (passType == "quote")
-            {
-                quoteOffsets[tabPage] += DropDownHeight;
-                invoiceOffsets[tabPage] += DropDownHeight;
-            }
-            else if (passType == "invoice")
-            {
-                invoiceOffsets[tabPage] += DropDownHeight;
-            }
-        }
-
-        //Logic to add elements to the page
         private void AddInputs(string query, List<(Type, string, int, Point, Size)> controlsInfo, TabPage tabPage, int controlsY, Dictionary<TabPage, int> offsets, string passType)
         {
+            // Initialize the offset for this tab if it hasn't been set yet
             if (!offsets.ContainsKey(tabPage))
             {
                 offsets[tabPage] = 0;
             }
 
+            // Find the panel in the tabPage
             Panel panel = (Panel)tabPage.Controls.Find($"Panel {tabPage.TabIndex + 1}", true)[0];
 
             List<List<string>> allDetails = new List<List<string>>();
@@ -454,6 +394,7 @@ namespace Homesmart_Job_Management_v2
             }
             else
             {
+                // Create a list of empty details when the query is empty
                 allDetails.Add(new List<string>(new string[controlsInfo.Count]));
             }
 
@@ -463,24 +404,62 @@ namespace Homesmart_Job_Management_v2
                 {
                     for (int i = 0; i < controlsInfo.Count; i++)
                     {
-                        CreateAndAddControl(details, controlsInfo, i, offsets, tabPage, panel);
+                        var (controlType, name, fontSize, position, size) = controlsInfo[i];
+                        string text = details[i];
+
+                        Control newControl = (Control)Activator.CreateInstance(controlType);
+                        newControl.Name = name;
+                        newControl.Text = text;
+                        newControl.Font = new Font(newControl.Font.FontFamily, fontSize);
+                        newControl.Location = new Point(position.X, position.Y + offsets[tabPage] + panel.AutoScrollPosition.Y);// Update the Y position based on the offset
+                        newControl.Size = size;
+
+                        // If the control is a NumericUpDown named "txtQuoteValue", set its Maximum property
+                        if (newControl is NumericUpDown)
+                        {
+                            ((NumericUpDown)newControl).Maximum = 99999999;
+                            ((NumericUpDown)newControl).DecimalPlaces = 2;
+                        }
+                        else if (newControl is DateTimePicker)
+                        {
+                            ((DateTimePicker)newControl).Format = DateTimePickerFormat.Short;
+                        }
+
+                        panel.Controls.Add(newControl);
                     }
                 }
-
+                // Move all controls below the new Y-position down
                 MoveControlsDown(panel.Controls, controlsY + offsets[tabPage] + panel.AutoScrollPosition.Y, DropDownHeight);
 
-                UpdateOffsets(passType, tabPage);
+                if (passType == "paint")
+                {
+                    paintOffsets[tabPage] += DropDownHeight;
+                    internalOffsets[tabPage] += DropDownHeight;
+                    quoteOffsets[tabPage] += DropDownHeight;
+                    invoiceOffsets[tabPage] += DropDownHeight;
+                }
+                else if (passType == "internal")
+                {
+                    internalOffsets[tabPage] += DropDownHeight;
+                    quoteOffsets[tabPage] += DropDownHeight;
+                    invoiceOffsets[tabPage] += DropDownHeight;
+                }
+                else if (passType == "quote")
+                {
+                    quoteOffsets[tabPage] += DropDownHeight;
+                    invoiceOffsets[tabPage] += DropDownHeight;
+                }
+                else if (passType == "invoice")
+                {
+                    invoiceOffsets[tabPage] += DropDownHeight;
+                }
             }
 
+            // Extend the height of the panel by 20 each time the function is called
             panel.Height += 20;
         }
 
 
-
-
-        //
-        //INPUT ELEMENTS
-        //
 
         //Create job detail elements
         private void AddJobDetailInputs()
@@ -530,6 +509,9 @@ namespace Homesmart_Job_Management_v2
                 tabIndex++; // Move to the next JobID for the next tab
             }
         }
+
+
+
 
 
         //Create paint detail elements
