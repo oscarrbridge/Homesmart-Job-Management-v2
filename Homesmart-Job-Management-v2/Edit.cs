@@ -9,28 +9,20 @@ namespace Homesmart_Job_Management_v2
 {
     public partial class Edit : Form
     {
-        // How much should each item drop
-        int DropDownHeight = 30;
+        int DropDownHeight = 30; // How much should each item drop
 
-        // How low below title
-        int InputOffset = 30;
+        int InputOffset = 30; // How low below title
 
-        // Track where new lines should be added
         private Dictionary<TabPage, int> paintOffsets = new Dictionary<TabPage, int>();
         private Dictionary<TabPage, int> internalOffsets = new Dictionary<TabPage, int>();
         private Dictionary<TabPage, int> quoteOffsets = new Dictionary<TabPage, int>();
         private Dictionary<TabPage, int> invoiceOffsets = new Dictionary<TabPage, int>();
 
-        // Starting offsets for these controls
         int lblJobDetailsY = 10;
         int lblPaintDetailsY = 83;
         int lblInternalChargesY = 173;
         int lblQuotesY = 263;
         int lblInvoicesY = 353;
-
-        //private Dictionary<> add    = new Dictionary<>;
-        //private Dictionary<> update = new Dictionary<>;
-        //private Dictionary<> remove = new Dictionary<>;
 
         public Edit(int CustomerID)
         {
@@ -256,6 +248,7 @@ namespace Homesmart_Job_Management_v2
                     (typeof(Label), "lblQuoteOwner",    "Quote Owner",  10, new Point(263, lblJobDetailsY), new Size(104, 16)),
                     (typeof(Label), "lblQuoteNumber",   "Quote Number", 10, new Point(385, lblJobDetailsY), new Size(104, 16)),
                     (typeof(Label), "lblQuoteValue",    "Value",        10, new Point(633, lblJobDetailsY), new Size(104, 16)),
+                    (typeof(NumericUpDown), "lblJobID", jobIDs[tabIndex].ToString(), 10, new Point(633, 572), new Size(104, 16)), // Fill in the JobID for this tab
                
                     //Paint Details
                     (typeof(Button), "btnAddDetail",    "+",             8, new Point(717, lblPaintDetailsY), new Size(20, 20)),
@@ -288,9 +281,6 @@ namespace Homesmart_Job_Management_v2
                     (typeof(Label), "lblInvoiceDate",     "Date",                 10, new Point(168, lblInvoicesY), new Size(140, 16)),
                     (typeof(Label), "lblInvoiceReference","Reference",            10, new Point(326, lblInvoicesY), new Size(140, 16)),
                     (typeof(Label), "lblInvoiceValue",    "Value",                10, new Point(633, lblInvoicesY), new Size(140, 16)),
-                    
-                    //Job ID
-                    (typeof(NumericUpDown), "lblJobID", jobIDs[tabIndex].ToString(), 8, new Point(633, lblInvoicesY + 40), new Size(104, 16)),
                 };
 
                 foreach (var (controlType, name, text, fontSize, position, size) in controlsInfo)
